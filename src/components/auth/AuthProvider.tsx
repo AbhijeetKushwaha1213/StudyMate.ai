@@ -26,6 +26,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateUserType: (type: 'exam' | 'college', details: any) => Promise<void>;
@@ -193,6 +194,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Don't log sensitive auth errors in production
       if (process.env.NODE_ENV === 'development') {
         console.error('Sign in error:', error);
+      }
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      setIsLoading(true);
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) {
+        toast({
+          title: "Google Sign In Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        throw error;
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Google sign in error:', error);
       }
       throw error;
     } finally {
@@ -369,6 +403,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isAuthenticated: !!user,
       isLoading,
       signIn,
+      signInWithGoogle,
       signUp,
       signOut,
       updateUserType,
