@@ -44,10 +44,12 @@ export default function ProjectFocusView({
 }: ProjectFocusViewProps) {
   const [timer, setTimer] = useState(3600); // 1 hour default
   const [isRunning, setIsRunning] = useState(false);
+  const projectDir = projectName.toLowerCase().replace(/\s+/g, '-');
+  const [currentDirectory, setCurrentDirectory] = useState(`~/projects/${projectDir}`);
   const [terminalOutput, setTerminalOutput] = useState([
-    "$ npm start",
-    "Launching dev server...",
-    "✓ Project running at localhost:3000"
+    `Welcome to ${projectName}`,
+    `Current directory: ${currentDirectory}`,
+    ""
   ]);
   const [terminalInput, setTerminalInput] = useState("");
   const [codeContent, setCodeContent] = useState("Write or paste your code here... This is a local scratchpad and does not save.");
@@ -110,18 +112,46 @@ export default function ProjectFocusView({
 
   const executeCommand = () => {
     if (terminalInput.trim()) {
-      const newOutput = [...terminalOutput, `$ ${terminalInput}`];
+      const cmd = terminalInput.trim().toLowerCase();
+      const newOutput = [...terminalOutput, `${currentDirectory}$ ${terminalInput}`];
       
-      if (terminalInput.includes("npm install")) {
-        newOutput.push("Installing dependencies...", "✔️ Installation complete");
-      } else if (terminalInput.includes("git")) {
-        newOutput.push("✔️ Git command executed");
-      } else if (terminalInput.includes("npm run")) {
-        newOutput.push("Running script...", "✔️ Script executed successfully");
-      } else if (terminalInput.includes("npm start")) {
-        newOutput.push("Launching dev server...", "✔️ Project running at localhost:3000");
+      if (cmd === "pwd") {
+        newOutput.push(currentDirectory);
+      } else if (cmd === "ls" || cmd === "ls -la") {
+        newOutput.push("src/", "public/", "package.json", "README.md", "node_modules/", ".git/");
+      } else if (cmd.startsWith("cd ")) {
+        const targetDir = cmd.substring(3).trim();
+        if (targetDir === "..") {
+          const parts = currentDirectory.split('/');
+          parts.pop();
+          setCurrentDirectory(parts.join('/') || '~');
+        } else if (targetDir === "~" || targetDir === "") {
+          setCurrentDirectory(`~/projects/${projectDir}`);
+        } else if (["src", "public", "node_modules"].includes(targetDir)) {
+          setCurrentDirectory(`${currentDirectory}/${targetDir}`);
+        } else {
+          newOutput.push(`cd: ${targetDir}: No such file or directory`);
+        }
+      } else if (cmd === "clear") {
+        setTerminalOutput([]);
+        setTerminalInput("");
+        return;
+      } else if (cmd.startsWith("npm install")) {
+        newOutput.push("📦 Installing dependencies...", "⏳ This may take a moment...", "✔️ Dependencies installed successfully");
+      } else if (cmd.startsWith("git status")) {
+        newOutput.push("On branch main", "Your branch is up to date with 'origin/main'.", "", "nothing to commit, working tree clean");
+      } else if (cmd.startsWith("git")) {
+        newOutput.push("✔️ Git command executed successfully");
+      } else if (cmd === "npm run build") {
+        newOutput.push("🔨 Building for production...", "✔️ Build completed successfully", "Output: dist/");
+      } else if (cmd === "npm start" || cmd === "npm run dev") {
+        newOutput.push("🚀 Starting development server...", "✔️ Server running at http://localhost:3000");
+      } else if (cmd === "npm test") {
+        newOutput.push("🧪 Running tests...", "✔️ All tests passed");
+      } else if (cmd === "help") {
+        newOutput.push("Available commands:", "  pwd          - Print working directory", "  ls           - List files", "  cd [dir]     - Change directory", "  clear        - Clear terminal", "  npm install  - Install dependencies", "  npm start    - Start dev server", "  npm test     - Run tests", "  git status   - Check git status", "  help         - Show this help");
       } else {
-        newOutput.push("Command executed");
+        newOutput.push(`Command not found: ${terminalInput}`, "Type 'help' for available commands");
       }
       
       setTerminalOutput(newOutput);
@@ -315,16 +345,16 @@ export default function ProjectFocusView({
                   <TabsContent value="terminal" className="mt-4">
                     <div className="bg-black text-green-400 font-mono p-4 rounded h-96 overflow-y-auto">
                       {terminalOutput.map((line, index) => (
-                        <div key={index} className="mb-1">{line}</div>
+                        <div key={index} className="mb-1 whitespace-pre-wrap">{line}</div>
                       ))}
-                      <div className="flex items-center mt-4">
-                        <span className="mr-2">$</span>
+                      <div className="flex items-center mt-2">
+                        <span className="mr-2 text-blue-400">{currentDirectory}$</span>
                         <Input 
                           value={terminalInput}
                           onChange={(e) => setTerminalInput(e.target.value)}
                           onKeyPress={(e) => e.key === 'Enter' && executeCommand()}
                           className="bg-transparent border-none text-green-400 font-mono focus:ring-0 focus-visible:ring-0"
-                          placeholder="Enter command..."
+                          placeholder="Type 'help' for commands..."
                         />
                       </div>
                     </div>

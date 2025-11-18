@@ -26,6 +26,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateUserType: (type: 'exam' | 'college', details: any) => Promise<void>;
@@ -52,7 +53,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) {
         console.error('AuthProvider: Error fetching user profile:', error);
-        setUser(null);
+        
+        // If profile doesn't exist, create a minimal user object to keep them authenticated
+        // This prevents network errors from logging users out
+        const minimalUser: UserProfile = {
+          id: supabaseUser.id,
+          user_id: supabaseUser.id,
+          name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'User',
+          email: supabaseUser.email || '',
+          userType: 'exam', // Default, will be updated during onboarding
+          study_streak: 0,
+          total_study_hours: 0,
+          current_level: 1,
+          experience_points: 0,
+        };
+        
+        console.log('AuthProvider: Using minimal user data due to fetch error');
+        setUser(minimalUser);
         return;
       }
 
@@ -82,13 +99,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         console.log('AuthProvider: Setting user state with data:', userData);
         setUser(userData);
-      } else {
-        console.log('AuthProvider: No profile data found for user');
-        setUser(null);
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
-      setUser(null);
+      
+      // Keep user authenticated with minimal data instead of logging out
+      const minimalUser: UserProfile = {
+        id: supabaseUser.id,
+        user_id: supabaseUser.id,
+        name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'User',
+        email: supabaseUser.email || '',
+        userType: 'exam',
+        study_streak: 0,
+        total_study_hours: 0,
+        current_level: 1,
+        experience_points: 0,
+      };
+      setUser(minimalUser);
     }
   };
 
@@ -167,6 +194,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Don't log sensitive auth errors in production
       if (process.env.NODE_ENV === 'development') {
         console.error('Sign in error:', error);
+      }
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      setIsLoading(true);
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) {
+        toast({
+          title: "Google Sign In Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        throw error;
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Google sign in error:', error);
       }
       throw error;
     } finally {
@@ -343,6 +403,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isAuthenticated: !!user,
       isLoading,
       signIn,
+      signInWithGoogle,
       signUp,
       signOut,
       updateUserType,

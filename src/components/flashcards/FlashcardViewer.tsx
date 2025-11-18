@@ -15,11 +15,12 @@ interface FlashcardViewerProps {
   flashcards: FlashcardData[];
   title: string;
   difficulty: string;
+  startingIndex?: number;
   onClose?: () => void;
 }
 
-export const FlashcardViewer = ({ flashcards, title, difficulty, onClose }: FlashcardViewerProps) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+export const FlashcardViewer = ({ flashcards, title, difficulty, startingIndex = 0, onClose }: FlashcardViewerProps) => {
+  const [currentIndex, setCurrentIndex] = useState(startingIndex);
   const [isFlipped, setIsFlipped] = useState(false);
   const [showHint, setShowHint] = useState(false);
 
