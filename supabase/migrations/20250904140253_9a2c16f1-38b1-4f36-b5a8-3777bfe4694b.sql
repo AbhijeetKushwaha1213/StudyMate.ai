@@ -10,88 +10,52 @@ BEGIN
   END IF;
 END $$;
 
--- Storage policies for avatars bucket
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE polname = 'Avatar images are publicly readable'
-  ) THEN
-    CREATE POLICY "Avatar images are publicly readable"
-    ON storage.objects
-    FOR SELECT
-    USING (bucket_id = 'avatars');
-  END IF;
-END $$;
+-- Storage policies for avatars bucket (simplified - just create them)
+DROP POLICY IF EXISTS "Avatar images are publicly readable" ON storage.objects;
+CREATE POLICY "Avatar images are publicly readable"
+ON storage.objects
+FOR SELECT
+USING (bucket_id = 'avatars');
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE polname = 'Users can upload their own avatar'
-  ) THEN
-    CREATE POLICY "Users can upload their own avatar"
-    ON storage.objects
-    FOR INSERT TO authenticated
-    WITH CHECK (
-      bucket_id = 'avatars'
-      AND (storage.foldername(name))[1] = auth.uid()::text
-    );
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can upload their own avatar" ON storage.objects;
+CREATE POLICY "Users can upload their own avatar"
+ON storage.objects
+FOR INSERT TO authenticated
+WITH CHECK (
+  bucket_id = 'avatars'
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE polname = 'Users can update their own avatar'
-  ) THEN
-    CREATE POLICY "Users can update their own avatar"
-    ON storage.objects
-    FOR UPDATE TO authenticated
-    USING (
-      bucket_id = 'avatars'
-      AND (storage.foldername(name))[1] = auth.uid()::text
-    );
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can update their own avatar" ON storage.objects;
+CREATE POLICY "Users can update their own avatar"
+ON storage.objects
+FOR UPDATE TO authenticated
+USING (
+  bucket_id = 'avatars'
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);
 
 -- Storage policies for message-attachments bucket
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE polname = 'Message attachments are publicly readable'
-  ) THEN
-    CREATE POLICY "Message attachments are publicly readable"
-    ON storage.objects
-    FOR SELECT
-    USING (bucket_id = 'message-attachments');
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Message attachments are publicly readable" ON storage.objects;
+CREATE POLICY "Message attachments are publicly readable"
+ON storage.objects
+FOR SELECT
+USING (bucket_id = 'message-attachments');
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE polname = 'Users can upload their own message attachments'
-  ) THEN
-    CREATE POLICY "Users can upload their own message attachments"
-    ON storage.objects
-    FOR INSERT TO authenticated
-    WITH CHECK (
-      bucket_id = 'message-attachments'
-      AND (storage.foldername(name))[1] = auth.uid()::text
-    );
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can upload their own message attachments" ON storage.objects;
+CREATE POLICY "Users can upload their own message attachments"
+ON storage.objects
+FOR INSERT TO authenticated
+WITH CHECK (
+  bucket_id = 'message-attachments'
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE polname = 'Users can update their own message attachments'
-  ) THEN
-    CREATE POLICY "Users can update their own message attachments"
-    ON storage.objects
-    FOR UPDATE TO authenticated
-    USING (
-      bucket_id = 'message-attachments'
-      AND (storage.foldername(name))[1] = auth.uid()::text
-    );
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can update their own message attachments" ON storage.objects;
+CREATE POLICY "Users can update their own message attachments"
+ON storage.objects
+FOR UPDATE TO authenticated
+USING (
+  bucket_id = 'message-attachments'
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);

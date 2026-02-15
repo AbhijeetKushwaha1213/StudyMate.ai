@@ -1,55 +1,27 @@
+// Service Worker - Disabled
+// This service worker is currently disabled to prevent caching issues during development
+// It will clean up old caches and then unregister itself
 
-const CACHE_NAME = 'studymate-v1';
-const urlsToCache = [
-  '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/manifest.json'
-];
-
-// Install event - cache resources
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Service Worker: Caching files');
-        return cache.addAll(urlsToCache);
-      })
-      .catch((error) => {
-        console.error('Service Worker: Error caching files', error);
-      })
-  );
+  console.log('Service Worker: Install event (disabled)');
+  self.skipWaiting();
 });
 
-// Fetch event - serve cached content when offline
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      })
-      .catch(() => {
-        // If both cache and network fail, show offline page
-        if (event.request.destination === 'document') {
-          return caches.match('/');
-        }
-      })
-  );
-});
-
-// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  console.log('Service Worker: Activate event (disabled)');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Service Worker: Deleting old cache', cacheName);
-            return caches.delete(cacheName);
-          }
+          console.log('Service Worker: Deleting cache', cacheName);
+          return caches.delete(cacheName);
         })
       );
+    }).then(() => {
+      console.log('Service Worker: All caches cleared');
+      return self.clients.claim();
     })
   );
 });
+
+// No fetch handler - service worker is disabled

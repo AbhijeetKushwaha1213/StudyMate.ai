@@ -1,15 +1,14 @@
 import React from 'react';
 import { CollegeDashboard } from '../dashboard/CollegeDashboard';
 import { ExamDashboard } from '../dashboard/ExamDashboard';
-import { FlashcardVault } from '../flashcards/FlashcardVault';
+import { AIGeneratorPage } from '../flashcards/AIGeneratorPage';
 import { AIChat } from '../chat/AIChat';
-import { AIStudyMaterialGenerator } from '../ai/AIStudyMaterialGenerator';
 import { ProfilePage } from '../profile/ProfilePage';
 import { SettingsPage } from '../settings/SettingsPage';
 import { NewAchievementsPage } from '../achievements/NewAchievementsPage';
 import { NotificationCenter } from '../notifications/NotificationCenter';
 import { DiscoverResources } from '../discover/DiscoverResources';
-import { ResourceSpace } from '../resources/ResourceSpace';
+import { NotionResourceManager } from '../notion/NotionResourceManager';
 import { IntegrationsPage } from '../integrations/IntegrationsPage';
 import { useAuth } from '../auth/AuthProvider';
 
@@ -34,11 +33,9 @@ export const ContentRenderer = ({ activeTab, onNavigate }: ContentRendererProps)
       case 'home':
         return user?.userType === 'college' ? <CollegeDashboard /> : <ExamDashboard />;
       case 'flashcards':
-        return <FlashcardVault />;
+        return <AIGeneratorPage />;
       case 'ai':
         return <AIChat />;
-      case 'generate':
-        return <AIStudyMaterialGenerator />;
       case 'achievements':
         return <NewAchievementsPage />;
       case 'profile':
@@ -48,7 +45,7 @@ export const ContentRenderer = ({ activeTab, onNavigate }: ContentRendererProps)
       case 'integrations':
         return <IntegrationsPage />;
       case 'resources':
-        return <ResourceSpace />;
+        return <NotionResourceManager />;
       case 'notifications':
         return <NotificationCenter onNavigate={handleNavigate} />;
       case 'discover':

@@ -167,16 +167,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Rate limiting for login attempts
       const clientId = `login_${email}_${Date.now()}`;
       
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email.toLowerCase().trim(),
         password,
       });
 
       if (error) {
-        // Don't expose specific auth errors to prevent enumeration attacks
-        const safeMessage = error.message.includes('Invalid login credentials') 
-          ? 'Invalid email or password'
-          : 'Authentication failed. Please try again.';
+        // Log the actual error for debugging
+        console.error('Supabase auth error:', error);
+        console.error('Error code:', error.status);
+        console.error('Error message:', error.message);
+        
+        // Provide more specific error messages
+        let safeMessage = 'Invalid email or password';
+        
+        if (error.message.includes('Email not confirmed')) {
+          safeMessage = 'Please verify your email address before signing in. Check your inbox for the verification link.';
+        } else if (error.message.includes('Invalid login credentials')) {
+          safeMessage = 'Invalid email or password. Please check your credentials and try again.';
+        } else if (error.message.includes('Email link is invalid or has expired')) {
+          safeMessage = 'Your verification link has expired. Please request a new one.';
+        } else if (error.status === 400) {
+          safeMessage = 'Invalid request. Please check your email and password format.';
+        }
           
         toast({
           title: "Sign In Failed",
@@ -186,15 +199,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(safeMessage);
       }
 
+      // Check if user session was created
+      if (!data.session) {
+        const message = 'Sign in succeeded but no session was created. Please try again.';
+        toast({
+          title: "Sign In Issue",
+          description: message,
+          variant: "destructive",
+        });
+        throw new Error(message);
+      }
+
       toast({
         title: "Welcome back!",
         description: "You have successfully signed in.",
       });
     } catch (error) {
-      // Don't log sensitive auth errors in production
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Sign in error:', error);
-      }
+      // Always log in development, conditionally in production
+      console.error('Sign in error:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -367,15 +389,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       console.log('AuthProvider: Saving update data:', updateData);
 
-      const { error } = await supabase
+      // First, check if profile exists
+      const { data: existingProfile, error: fetchError } = await supabase
         .from('user_profiles')
-        .update(updateData)
-        .eq('user_id', session.user.id);
+        .select('user_id')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        // PGRST116 is "not found" error, which is okay
+        console.error('AuthProvider: Error checking existing profile:', fetchError);
+      }
+
+      let error;
+      
+      if (existingProfile) {
+        // Profile exists, update it
+        console.log('AuthProvider: Profile exists, updating...');
+        const result = await supabase
+          .from('user_profiles')
+          .update(updateData)
+          .eq('user_id', session.user.id);
+        error = result.error;
+      } else {
+        // Profile doesn't exist, insert it
+        console.log('AuthProvider: Profile does not exist, inserting...');
+        const result = await supabase
+          .from('user_profiles')
+          .insert({ user_id: session.user.id, ...updateData });
+        error = result.error;
+      }
 
       if (error) {
-        console.error('AuthProvider: Database update error:', error);
+        console.error('AuthProvider: Database operation error:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
         toast({
-          title: "Update Failed",
+          title: "Profile Setup Failed",
           description: error.message,
           variant: "destructive",
         });

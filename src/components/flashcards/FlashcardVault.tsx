@@ -348,14 +348,9 @@ export const FlashcardVault = () => {
           </h3>
           <p className="text-gray-600 mb-4">
             {flashcards.length === 0 && studyMaterials.length === 0 
-              ? "Create your first flashcards, quizzes, or notes to get started!" 
+              ? "Switch to the Generate tab to create your first flashcards, quizzes, or notes!" 
               : "Try adjusting your search terms or filters"}
           </p>
-          {flashcards.length === 0 && studyMaterials.length === 0 && (
-            <Button variant="outline" onClick={() => window.location.href = '/generate'}>
-              Go to AI Generator
-            </Button>
-          )}
         </div>
       )}
     </div>

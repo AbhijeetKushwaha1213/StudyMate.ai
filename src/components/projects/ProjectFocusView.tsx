@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Play, Pause, RotateCcw, Code, ExternalLink, Github, Timer, Brain, Send, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Play, Pause, RotateCcw, Code, ExternalLink, Github, Timer, Brain, Send, Plus, Trash2, CheckCircle2, Circle, AlertCircle, TrendingUp, FileEdit } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProjectFocusViewProps {
   projectName?: string;
@@ -28,6 +31,13 @@ interface Resource {
   type: 'documentation' | 'tutorial' | 'article' | 'video';
 }
 
+interface Task {
+  id: number;
+  title: string;
+  completed: boolean;
+  priority: 'high' | 'medium' | 'low';
+}
+
 interface LeetCodeProblem {
   id: number;
   title: string;
@@ -42,6 +52,7 @@ export default function ProjectFocusView({
   deadline = "2 days",
   onBack 
 }: ProjectFocusViewProps) {
+  const { toast } = useToast();
   const [timer, setTimer] = useState(3600); // 1 hour default
   const [isRunning, setIsRunning] = useState(false);
   const projectDir = projectName.toLowerCase().replace(/\s+/g, '-');
@@ -67,6 +78,18 @@ export default function ProjectFocusView({
     { id: 2, title: "Tailwind CSS Guide", url: "https://tailwindcss.com/docs", type: "documentation" }
   ]);
   const [newResource, setNewResource] = useState({ title: "", url: "", type: "documentation" as Resource['type'] });
+  const [tasks, setTasks] = useState<Task[]>([
+    { id: 1, title: "Set up project structure", completed: true, priority: 'high' },
+    { id: 2, title: "Design homepage layout", completed: true, priority: 'high' },
+    { id: 3, title: "Implement navigation component", completed: false, priority: 'high' },
+    { id: 4, title: "Add responsive design", completed: false, priority: 'medium' },
+    { id: 5, title: "Create contact form", completed: false, priority: 'medium' },
+    { id: 6, title: "Optimize images", completed: false, priority: 'low' },
+  ]);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updateText, setUpdateText] = useState('');
 
   const leetcodeProblems: LeetCodeProblem[] = [
     {
@@ -208,6 +231,79 @@ export default function ProjectFocusView({
     window.open("vscode://file/your-project-path", "_blank");
   };
 
+  const toggleTask = (taskId: number) => {
+    setTasks(prev => prev.map(task => 
+      task.id === taskId ? { ...task, completed: !task.completed } : task
+    ));
+  };
+
+  const addTask = () => {
+    if (newTaskTitle.trim()) {
+      const newTask: Task = {
+        id: Date.now(),
+        title: newTaskTitle.trim(),
+        completed: false,
+        priority: 'medium'
+      };
+      setTasks(prev => [...prev, newTask]);
+      setNewTaskTitle('');
+    }
+  };
+
+  const deleteTask = (taskId: number) => {
+    setTasks(prev => prev.filter(task => task.id !== taskId));
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'text-red-400';
+      case 'medium': return 'text-yellow-400';
+      case 'low': return 'text-green-400';
+      default: return 'text-gray-400';
+    }
+  };
+
+  const todaysTasks = tasks.filter(task => !task.completed);
+  const completedTasks = tasks.filter(task => task.completed);
+
+  // Quick Actions handlers
+  const handleViewProgress = () => {
+    setShowProgressModal(true);
+  };
+
+  const handleSubmitUpdate = () => {
+    setShowUpdateModal(true);
+  };
+
+  const handleMarkComplete = () => {
+    if (window.confirm(`Are you sure you want to mark "${projectName}" as complete?`)) {
+      toast({
+        title: "Project Completed! 🎉",
+        description: `Congratulations! ${projectName} has been marked as complete.`,
+      });
+      // Here you would typically update the project status in your database
+      setTimeout(() => {
+        onBack();
+      }, 2000);
+    }
+  };
+
+  const handleSaveUpdate = () => {
+    if (updateText.trim()) {
+      toast({
+        title: "Update Submitted",
+        description: "Your project update has been saved successfully.",
+      });
+      setUpdateText('');
+      setShowUpdateModal(false);
+    }
+  };
+
+  const calculateProgress = () => {
+    if (tasks.length === 0) return 0;
+    return Math.round((completedTasks.length / tasks.length) * 100);
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
@@ -287,6 +383,36 @@ export default function ProjectFocusView({
                     >
                       <ExternalLink className="w-4 h-4 mr-2" />
                       LinkedIn
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Quick Actions - Moved here */}
+                <div className="mb-6">
+                  <h3 className="font-medium text-white mb-3">Quick Actions</h3>
+                  <div className="flex gap-2 flex-wrap">
+                    <Button 
+                      variant="outline" 
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                      onClick={handleViewProgress}
+                    >
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                      View Progress
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                      onClick={handleSubmitUpdate}
+                    >
+                      <FileEdit className="w-4 h-4 mr-2" />
+                      Submit Update
+                    </Button>
+                    <Button 
+                      className="bg-green-600 hover:bg-green-700"
+                      onClick={handleMarkComplete}
+                    >
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Mark as Complete
                     </Button>
                   </div>
                 </div>
@@ -487,20 +613,110 @@ export default function ProjectFocusView({
 
           {/* Right Sidebar - Sticky */}
           <div className="space-y-6 lg:sticky lg:top-24 lg:h-fit">
-            {/* Quick Actions */}
+            {/* Today's Tasks */}
             <Card className="bg-gray-800 border-gray-700">
               <CardContent className="p-4">
-                <h3 className="font-medium text-white mb-3">Quick Actions</h3>
-                <div className="space-y-2">
-                  <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-700">
-                    View Progress
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-medium text-white">Today's Tasks</h3>
+                  <div className="text-sm text-gray-400">
+                    {completedTasks.length}/{tasks.length}
+                  </div>
+                </div>
+
+                {/* Add Task Input */}
+                <div className="flex gap-2 mb-4">
+                  <Input
+                    value={newTaskTitle}
+                    onChange={(e) => setNewTaskTitle(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addTask()}
+                    placeholder="Add a new task..."
+                    className="bg-gray-900 border-gray-600 text-white placeholder-gray-400"
+                  />
+                  <Button 
+                    onClick={addTask}
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Plus className="w-4 h-4" />
                   </Button>
-                  <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-700">
-                    Submit Update
-                  </Button>
-                  <Button className="w-full bg-red-600 hover:bg-red-700">
-                    Mark as Complete
-                  </Button>
+                </div>
+
+                {/* Tasks List */}
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {/* Pending Tasks */}
+                  {todaysTasks.length > 0 && (
+                    <div className="space-y-2">
+                      {todaysTasks.map(task => (
+                        <div 
+                          key={task.id}
+                          className="flex items-start gap-2 p-2 bg-gray-900 rounded border border-gray-700 hover:bg-gray-800 transition-colors"
+                        >
+                          <button
+                            onClick={() => toggleTask(task.id)}
+                            className="mt-0.5 flex-shrink-0"
+                          >
+                            <Circle className="w-4 h-4 text-gray-400 hover:text-blue-400" />
+                          </button>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-white break-words">{task.title}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <AlertCircle className={`w-3 h-3 ${getPriorityColor(task.priority)}`} />
+                              <span className={`text-xs ${getPriorityColor(task.priority)}`}>
+                                {task.priority}
+                              </span>
+                            </div>
+                          </div>
+                          <Button
+                            onClick={() => deleteTask(task.id)}
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Completed Tasks */}
+                  {completedTasks.length > 0 && (
+                    <div className="space-y-2 mt-4 pt-4 border-t border-gray-700">
+                      <p className="text-xs text-gray-500 uppercase font-medium">Completed</p>
+                      {completedTasks.map(task => (
+                        <div 
+                          key={task.id}
+                          className="flex items-start gap-2 p-2 bg-gray-900/50 rounded border border-gray-700/50"
+                        >
+                          <button
+                            onClick={() => toggleTask(task.id)}
+                            className="mt-0.5 flex-shrink-0"
+                          >
+                            <CheckCircle2 className="w-4 h-4 text-green-400" />
+                          </button>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-gray-500 line-through break-words">{task.title}</p>
+                          </div>
+                          <Button
+                            onClick={() => deleteTask(task.id)}
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Empty State */}
+                  {tasks.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <p className="text-sm">No tasks yet</p>
+                      <p className="text-xs mt-1">Add your first task above</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -564,6 +780,120 @@ export default function ProjectFocusView({
           </div>
         </div>
       </div>
+
+      {/* Progress Modal */}
+      <Dialog open={showProgressModal} onOpenChange={setShowProgressModal}>
+        <DialogContent className="bg-gray-800 border-gray-700 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-white">Project Progress</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Track your progress on {projectName}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {/* Overall Progress */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-300">Overall Completion</span>
+                <span className="text-2xl font-bold text-white">{calculateProgress()}%</span>
+              </div>
+              <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
+                  style={{ width: `${calculateProgress()}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Task Breakdown */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-300 mb-3">Task Breakdown</h4>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                  <span className="text-sm text-gray-300">Total Tasks</span>
+                  <span className="font-semibold text-white">{tasks.length}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                  <span className="text-sm text-gray-300">Completed</span>
+                  <span className="font-semibold text-green-400">{completedTasks.length}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                  <span className="text-sm text-gray-300">Remaining</span>
+                  <span className="font-semibold text-yellow-400">{todaysTasks.length}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Time Spent */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-300 mb-3">Session Info</h4>
+              <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                <span className="text-sm text-gray-300">Current Session</span>
+                <span className="font-mono font-semibold text-white">{formatTime(3600 - timer)}</span>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button 
+              onClick={() => setShowProgressModal(false)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Submit Update Modal */}
+      <Dialog open={showUpdateModal} onOpenChange={setShowUpdateModal}>
+        <DialogContent className="bg-gray-800 border-gray-700 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-white">Submit Project Update</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Share your progress and any blockers you're facing
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium text-gray-300 mb-2 block">
+                What did you accomplish today?
+              </label>
+              <Textarea
+                value={updateText}
+                onChange={(e) => setUpdateText(e.target.value)}
+                placeholder="Describe your progress, completed tasks, or any challenges..."
+                className="bg-gray-900 border-gray-600 text-white placeholder-gray-400 min-h-32"
+              />
+            </div>
+
+            <div className="p-3 bg-blue-900/20 border border-blue-700 rounded">
+              <p className="text-sm text-blue-300">
+                💡 Tip: Regular updates help track your progress and identify patterns in your workflow.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button 
+              variant="outline"
+              onClick={() => setShowUpdateModal(false)}
+              className="border-gray-600 text-gray-300 hover:bg-gray-700"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSaveUpdate}
+              disabled={!updateText.trim()}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Submit Update
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

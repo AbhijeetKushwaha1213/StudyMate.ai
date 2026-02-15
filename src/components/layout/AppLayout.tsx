@@ -6,8 +6,11 @@ import { AppHeader } from './AppHeader';
 import { ContentRenderer } from './ContentRenderer';
 import { QuickActions } from '../common/QuickActions';
 import { ErrorBoundary } from '../ErrorBoundary';
+import { RightSidebar } from './RightSidebar';
+import { ChatPanel } from './ChatPanel';
+import { SearchModal } from '../notion/SearchModal';
 import { Button } from '@/components/ui/button';
-import { X, Menu, Maximize, Minimize, EyeOff } from 'lucide-react';
+import { X, Menu, Maximize, Minimize, MessageCircle, ListTodo } from 'lucide-react';
 
 interface AppLayoutProps {
   user: any;
@@ -24,10 +27,12 @@ export const AppLayout = ({
   handleSignOut, 
   isOnline 
 }: AppLayoutProps) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [fullScreenMode, setFullScreenMode] = useState(false);
-  const [sidebarHidden, setSidebarHidden] = useState(false);
+  const [todoSidebarOpen, setTodoSidebarOpen] = useState(false);
+  const [chatPanelOpen, setChatPanelOpen] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
 
   console.log('AppLayout render - activeTab:', activeTab, 'user:', user?.id);
 
@@ -41,11 +46,7 @@ export const AppLayout = ({
   };
 
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-  const toggleSidebarVisibility = () => {
-    setSidebarHidden(!sidebarHidden);
+    setSidebarCollapsed(!sidebarCollapsed);
   };
 
   const toggleMobileMenu = () => {
@@ -56,22 +57,35 @@ export const AppLayout = ({
     setFullScreenMode(!fullScreenMode);
   };
 
+  const toggleTodoSidebar = () => {
+    if (chatPanelOpen) {
+      setChatPanelOpen(false);
+    }
+    setTodoSidebarOpen(!todoSidebarOpen);
+  };
+
+  const toggleChatPanel = () => {
+    if (todoSidebarOpen) {
+      setTodoSidebarOpen(false);
+    }
+    setChatPanelOpen(!chatPanelOpen);
+  };
+
   return (
     <div className="min-h-screen bg-background flex overflow-hidden">
-      {/* Desktop Sidebar - Collapsible and Hideable */}
-      <div className={`hidden lg:flex transition-all duration-300 ease-in-out ${
-        fullScreenMode || sidebarHidden ? 'w-0' : sidebarOpen ? 'w-64' : 'w-0'
-      }`}>
-        <div className={`w-64 transition-transform duration-300 ease-in-out ${
-          sidebarOpen && !sidebarHidden ? 'translate-x-0' : '-translate-x-full'
+      {/* Desktop Sidebar - Collapsible */}
+      {!fullScreenMode && (
+        <div className={`hidden lg:flex transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? 'w-16' : 'w-64'
         }`}>
           <DesktopSidebar 
             activeTab={activeTab} 
             onTabChange={handleTabChange}
             onSignOut={handleSignOut}
+            isCollapsed={sidebarCollapsed}
           />
         </div>
-      </div>
+      )}
 
       {/* Mobile Sidebar Overlay */}
       {mobileMenuOpen && (
@@ -89,6 +103,7 @@ export const AppLayout = ({
                 activeTab={activeTab} 
                 onTabChange={handleTabChange}
                 onSignOut={handleSignOut}
+                isCollapsed={false}
               />
             </div>
           </div>
@@ -101,12 +116,13 @@ export const AppLayout = ({
         <div className="h-16 bg-background border-b border-border flex items-center justify-between px-4 lg:px-6 sticky top-0 z-40">
           <div className="flex items-center space-x-4">
             {/* Sidebar Toggle - Desktop */}
-            {!fullScreenMode && !sidebarHidden && (
+            {!fullScreenMode && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={toggleSidebar}
                 className="hidden lg:flex"
+                title={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
               >
                 <Menu className="w-5 h-5" />
               </Button>
@@ -124,29 +140,37 @@ export const AppLayout = ({
 
             <h1 className="text-xl font-semibold text-foreground">
               {activeTab === 'home' ? 'Dashboard' :
-               activeTab === 'flashcards' ? 'Flashcards' :
+               activeTab === 'flashcards' ? 'AI Generator' :
                activeTab === 'ai' ? 'AI Chat' :
                activeTab === 'achievements' ? 'Achievements' :
                activeTab === 'resources' ? 'Resources' :
-               activeTab === 'generate' ? 'AI Generator' :
                activeTab === 'settings' ? 'Settings' :
                'StudyMate AI'}
             </h1>
           </div>
 
           <div className="flex items-center space-x-2">
-            {/* Hide Sidebar Toggle */}
-            {!fullScreenMode && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleSidebarVisibility}
-                className="hidden lg:flex"
-                title={sidebarHidden ? 'Show Sidebar' : 'Hide Sidebar'}
-              >
-                <EyeOff className="w-5 h-5" />
-              </Button>
-            )}
+            {/* Chat Toggle */}
+            <Button
+              variant={chatPanelOpen ? "default" : "ghost"}
+              size="sm"
+              onClick={toggleChatPanel}
+              className="hidden sm:flex"
+              title="AI Chat"
+            >
+              <MessageCircle className="w-5 h-5" />
+            </Button>
+
+            {/* Todo Sidebar Toggle */}
+            <Button
+              variant={todoSidebarOpen ? "default" : "ghost"}
+              size="sm"
+              onClick={toggleTodoSidebar}
+              className="hidden sm:flex"
+              title="To-Do List"
+            >
+              <ListTodo className="w-5 h-5" />
+            </Button>
 
             {/* Full Screen Toggle */}
             <Button
@@ -187,6 +211,61 @@ export const AppLayout = ({
           isOnline={isOnline}
         />
       )}
+
+      {/* Mobile Floating Action Buttons */}
+      {!fullScreenMode && (
+        <div className="fixed bottom-20 right-4 flex flex-col space-y-3 lg:hidden z-40">
+          <Button
+            size="lg"
+            onClick={toggleChatPanel}
+            className={`h-14 w-14 rounded-full shadow-lg ${
+              chatPanelOpen ? 'bg-primary' : 'bg-background border-2 border-primary'
+            }`}
+            variant={chatPanelOpen ? "default" : "outline"}
+          >
+            <MessageCircle className="w-6 h-6" />
+          </Button>
+          <Button
+            size="lg"
+            onClick={toggleTodoSidebar}
+            className={`h-14 w-14 rounded-full shadow-lg ${
+              todoSidebarOpen ? 'bg-primary' : 'bg-background border-2 border-primary'
+            }`}
+            variant={todoSidebarOpen ? "default" : "outline"}
+          >
+            <ListTodo className="w-6 h-6" />
+          </Button>
+        </div>
+      )}
+
+      {/* Overlay for mobile when panels are open */}
+      {(todoSidebarOpen || chatPanelOpen) && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+          onClick={() => {
+            setTodoSidebarOpen(false);
+            setChatPanelOpen(false);
+          }}
+        />
+      )}
+
+      {/* Right Sidebar - Todo List */}
+      <RightSidebar 
+        isOpen={todoSidebarOpen && !fullScreenMode} 
+        onClose={() => setTodoSidebarOpen(false)} 
+      />
+
+      {/* Chat Panel */}
+      <ChatPanel 
+        isOpen={chatPanelOpen && !fullScreenMode} 
+        onClose={() => setChatPanelOpen(false)} 
+      />
+
+      {/* Search Modal */}
+      <SearchModal 
+        open={searchModalOpen} 
+        onOpenChange={setSearchModalOpen} 
+      />
     </div>
   );
 };

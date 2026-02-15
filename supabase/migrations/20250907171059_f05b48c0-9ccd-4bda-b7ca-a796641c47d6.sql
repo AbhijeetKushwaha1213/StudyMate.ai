@@ -1,5 +1,5 @@
 -- Create user_projects table for college dashboard
-CREATE TABLE public.user_projects (
+CREATE TABLE IF NOT EXISTS public.user_projects (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name text NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE public.user_projects (
 );
 
 -- Create user_skills table for college dashboard
-CREATE TABLE public.user_skills (
+CREATE TABLE IF NOT EXISTS public.user_skills (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   skill text NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE public.user_skills (
 );
 
 -- Create user_achievements table for achievement tracking
-CREATE TABLE public.user_achievements (
+CREATE TABLE IF NOT EXISTS public.user_achievements (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   title text NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE public.user_achievements (
 );
 
 -- Create user_stats table for personal statistics
-CREATE TABLE public.user_stats (
+CREATE TABLE IF NOT EXISTS public.user_stats (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   cgpa numeric(3,2),
@@ -54,37 +54,45 @@ ALTER TABLE public.user_achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_stats ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies for user_projects
+DROP POLICY IF EXISTS "Users can manage their own projects" ON public.user_projects;
 CREATE POLICY "Users can manage their own projects" ON public.user_projects
   FOR ALL USING (auth.uid() = user_id);
 
 -- Create RLS policies for user_skills
+DROP POLICY IF EXISTS "Users can manage their own skills" ON public.user_skills;
 CREATE POLICY "Users can manage their own skills" ON public.user_skills
   FOR ALL USING (auth.uid() = user_id);
 
 -- Create RLS policies for user_achievements
+DROP POLICY IF EXISTS "Users can view their own achievements" ON public.user_achievements;
 CREATE POLICY "Users can view their own achievements" ON public.user_achievements
   FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "System can create achievements" ON public.user_achievements;
 CREATE POLICY "System can create achievements" ON public.user_achievements
   FOR INSERT WITH CHECK (true);
 
 -- Create RLS policies for user_stats
+DROP POLICY IF EXISTS "Users can manage their own stats" ON public.user_stats;
 CREATE POLICY "Users can manage their own stats" ON public.user_stats
   FOR ALL USING (auth.uid() = user_id);
 
 -- Create update trigger for user_projects
+DROP TRIGGER IF EXISTS update_user_projects_updated_at ON public.user_projects;
 CREATE TRIGGER update_user_projects_updated_at
   BEFORE UPDATE ON public.user_projects
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Create update trigger for user_skills
+DROP TRIGGER IF EXISTS update_user_skills_updated_at ON public.user_skills;
 CREATE TRIGGER update_user_skills_updated_at
   BEFORE UPDATE ON public.user_skills
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Create update trigger for user_stats
+DROP TRIGGER IF EXISTS update_user_stats_updated_at ON public.user_stats;
 CREATE TRIGGER update_user_stats_updated_at
   BEFORE UPDATE ON public.user_stats
   FOR EACH ROW

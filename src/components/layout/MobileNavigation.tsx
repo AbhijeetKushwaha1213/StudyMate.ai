@@ -30,8 +30,7 @@ interface MobileNavigationProps {
 
 const navigationItems = [
   { id: 'home', label: 'Dashboard', icon: Home },
-  { id: 'flashcards', label: 'Flashcards', icon: CreditCard },
-  { id: 'generate', label: 'AI Generator', icon: Zap },
+  { id: 'flashcards', label: 'AI Generator', icon: Zap },
   { id: 'resources', label: 'Resources', icon: FileText },
   { id: 'achievements', label: 'Achievements', icon: Trophy },
 ];

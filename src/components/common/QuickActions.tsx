@@ -19,17 +19,10 @@ export const QuickActions = ({ onNavigate }: QuickActionsProps) => {
   const quickActions = [
     {
       id: 'create-flashcard',
-      label: 'Create Flashcard',
-      icon: Plus,
-      color: 'bg-blue-500 hover:bg-blue-600',
-      onClick: () => onNavigate('flashcards')
-    },
-    {
-      id: 'ai-generate',
-      label: 'AI Generate',
+      label: 'AI Generator',
       icon: Brain,
       color: 'bg-purple-500 hover:bg-purple-600',
-      onClick: () => onNavigate('ai-generator')
+      onClick: () => onNavigate('flashcards')
     },
     {
       id: 'quick-review',
@@ -44,6 +37,13 @@ export const QuickActions = ({ onNavigate }: QuickActionsProps) => {
       icon: Calendar,
       color: 'bg-orange-500 hover:bg-orange-600',
       onClick: () => onNavigate('achievements')
+    },
+    {
+      id: 'ai-chat',
+      label: 'AI Chat',
+      icon: BookOpen,
+      color: 'bg-blue-500 hover:bg-blue-600',
+      onClick: () => onNavigate('ai')
     }
   ];
 
