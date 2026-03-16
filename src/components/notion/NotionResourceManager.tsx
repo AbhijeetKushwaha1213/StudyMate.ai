@@ -28,7 +28,7 @@ export function NotionResourceManager() {
       logError(pagesError, {
         component: 'NotionResourceManager',
         action: 'loadPages',
-        userId: user?.id,
+        userId: user?.user_id,
       });
       
       toast({
@@ -55,7 +55,7 @@ export function NotionResourceManager() {
   };
 
   const handleCreatePage = async () => {
-    if (!user?.id) {
+    if (!user?.user_id) {
       toast({
         title: 'Authentication Required',
         description: 'Please sign in to create pages',
@@ -81,7 +81,7 @@ export function NotionResourceManager() {
       logError(error, {
         component: 'NotionResourceManager',
         action: 'createPage',
-        userId: user?.id,
+        userId: user?.user_id,
       });
       
       toast({
