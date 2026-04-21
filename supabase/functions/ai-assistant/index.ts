@@ -241,7 +241,17 @@ Rules:
     }
 
     const data = await response.json();
-    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
+    let aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
+    
+    // Clean up the response - remove markdown code blocks if present
+    if (aiResponse.includes('```json')) {
+      aiResponse = aiResponse.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+    } else if (aiResponse.includes('```')) {
+      aiResponse = aiResponse.replace(/```\s*/g, '');
+    }
+    
+    // Trim whitespace
+    aiResponse = aiResponse.trim();
 
     console.log('AI response generated successfully for topic:', topic || message);
 

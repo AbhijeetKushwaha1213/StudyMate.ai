@@ -60,15 +60,38 @@ export const AIFlashcardGenerator = () => {
       });
 
       if (error) {
+        console.error('AIFlashcardGenerator: Supabase function error:', error);
         throw new Error(error.message || 'Failed to generate flashcards');
       }
+      
+      if (!data || !data.response) {
+        console.error('AIFlashcardGenerator: No response from AI');
+        throw new Error('No response received from AI service');
+      }
+      
       console.log('AIFlashcardGenerator: Raw AI response:', data);
       
       let aiContent;
       try {
+        // Try to parse the JSON response
         aiContent = JSON.parse(data.response);
+        
+        // Validate the response structure
+        if (!aiContent.flashcards || !Array.isArray(aiContent.flashcards)) {
+          console.error('AIFlashcardGenerator: Invalid response structure:', aiContent);
+          throw new Error('AI returned invalid flashcard format');
+        }
       } catch (parseError) {
-        console.error('Failed to parse AI response, using fallback');
+        console.error('AIFlashcardGenerator: Failed to parse AI response:', parseError);
+        console.error('AIFlashcardGenerator: Raw response was:', data.response);
+        
+        // Show the actual error to help debug
+        toast({
+          title: "Parsing Error",
+          description: `Failed to parse AI response. The AI might have returned text instead of JSON. Error: ${parseError.message}`,
+          variant: "destructive",
+        });
+        
         // Fallback to simple content generation
         const numCards = parseInt(count);
         const cardTopic = topic || finalContent.substring(0, 30);
