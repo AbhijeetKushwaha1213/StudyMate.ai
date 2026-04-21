@@ -2,7 +2,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,8 +18,8 @@ serve(async (req) => {
   try {
     const { message, context, userType, subject, contentType, topic, difficulty, count } = await req.json();
 
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
+    if (!geminiApiKey) {
+      throw new Error('Gemini API key not configured');
     }
 
     // Enhanced system prompts for different content types with strict topic anchoring
@@ -202,35 +202,42 @@ Rules:
       Generate ${contentType} content STRICTLY for "${topic || message}" ONLY. Focus exclusively on the provided topic and ensure all content is accurate, relevant, and directly related to "${topic || message}". DO NOT include any concepts from other subjects or unrelated topics.` 
       : message;
 
-    const messages = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
-    ];
+    // Gemini uses a different message format
+    const geminiPrompt = `${systemPrompt}\n\nUser Request:\n${userPrompt}`;
 
-    console.log('Calling OpenAI with enhanced topic-focused prompts for:', contentType, 'Topic:', topic || message);
+    console.log('Calling Gemini API with enhanced topic-focused prompts for:', contentType, 'Topic:', topic || message);
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Gemini API endpoint - using gemini-1.5-flash for fast, cost-effective responses
+    const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+
+    const response = await fetch(geminiEndpoint, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: messages,
-        max_tokens: 1500,
-        temperature: 0.1, // Very low temperature for more focused, consistent output
+        contents: [{
+          parts: [{
+            text: geminiPrompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.1,
+          maxOutputTokens: 2048,
+          topP: 0.8,
+          topK: 10
+        }
       }),
     });
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('OpenAI API error:', response.status, errorData);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      console.error('Gemini API error:', response.status, errorData);
+      throw new Error(`Gemini API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const aiResponse = data.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
+    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
 
     console.log('AI response generated successfully for topic:', topic || message);
 

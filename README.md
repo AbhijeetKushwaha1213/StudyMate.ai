@@ -13,7 +13,7 @@ StudyMate AI is a full-stack web application designed to help students focus, or
 ## ✨ Key Features
 
 - 🧠 **AI Content Generator**  
-  Generate flashcards, quizzes, mind maps, flowcharts, and summaries from notes or PDFs using integrated OpenAI models.
+  Generate flashcards, quizzes, mind maps, flowcharts, and summaries from notes or PDFs using Google Gemini AI.
 
 - 📊 **Dual Dashboards**  
   Switch between **College Mode** (project & skill tracking) and **Preparation Mode** (mock tests, revision logs, performance tracking).
@@ -36,7 +36,7 @@ StudyMate AI is a full-stack web application designed to help students focus, or
 
 - **Frontend**: React.js + TypeScript  
 - **Backend**: Supabase (Auth, DB, Storage)  
-- **AI Integration**: OpenAI GPT-4 APIs  
+- **AI Integration**: Google Gemini API (gemini-1.5-flash model)  
 - **Authentication**: Supabase Auth  
 - **Hosting**: Vercel / Render / Custom server  
 - **Editor Tools**: Monaco Editor (VS Code-like), CodeMirror  

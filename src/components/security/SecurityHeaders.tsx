@@ -22,7 +22,7 @@ export const SecurityHeaders = () => {
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; " +
       "style-src 'self' 'unsafe-inline'; " +
       "img-src 'self' data: blob: https:; " +
-      "connect-src 'self' https://*.supabase.co https://api.openai.com; " +
+      "connect-src 'self' https://*.supabase.co https://generativelanguage.googleapis.com; " +
       "font-src 'self' data:; " +
       "frame-ancestors 'none';"
     );
