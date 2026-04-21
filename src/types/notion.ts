@@ -88,6 +88,7 @@ export interface ImageBlock extends BaseBlock {
   caption: string;
   width: number;
   height: number;
+  file_id?: string;
 }
 
 export interface FileBlock extends BaseBlock {

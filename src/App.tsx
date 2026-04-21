@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./components/auth/AuthProvider";
+import { AuthCallback } from "./components/auth/AuthCallback";
 import { MainApp } from "./components/MainApp";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { SecurityHeaders } from "./components/security/SecurityHeaders";
@@ -53,6 +54,11 @@ const App = () => {
               <Route path="/auth" element={
                 <AuthProvider>
                   <MainApp />
+                </AuthProvider>
+              } />
+              <Route path="/auth/callback" element={
+                <AuthProvider>
+                  <AuthCallback />
                 </AuthProvider>
               } />
               <Route path="/" element={

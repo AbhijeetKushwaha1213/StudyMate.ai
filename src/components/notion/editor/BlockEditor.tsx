@@ -48,6 +48,89 @@ export function BlockEditor({
     })
   );
 
+  const createBlock = useCallback((type: Block['type'], position: number, id?: string): Block => {
+    const baseBlock = {
+      id: id ?? crypto.randomUUID(),
+      type,
+      position,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    if (type === 'text' || type.startsWith('heading')) {
+      return { ...baseBlock, content: { text: '', marks: [] } } as Block;
+    }
+    if (type === 'bulletList' || type === 'numberedList') {
+      return { ...baseBlock, items: [{ text: '', marks: [] }] } as Block;
+    }
+    if (type === 'checkbox') {
+      return { ...baseBlock, checked: false, content: { text: '', marks: [] } } as Block;
+    }
+    if (type === 'quote' || type === 'callout') {
+      return { ...baseBlock, content: { text: '', marks: [] }, ...(type === 'callout' ? { icon: '💡', backgroundColor: '#f8fafc' } : {}) } as Block;
+    }
+    if (type === 'code') {
+      return { ...baseBlock, language: 'javascript', content: '' } as Block;
+    }
+    if (type === 'image') {
+      return { ...baseBlock, url: '', caption: '', width: 0, height: 0 } as Block;
+    }
+    if (type === 'file') {
+      return { ...baseBlock, file_id: '', filename: '', file_type: '', file_size: 0 } as Block;
+    }
+    if (type === 'embed') {
+      return { ...baseBlock, url: '', caption: '' } as Block;
+    }
+    if (type === 'table') {
+      const firstColumnId = crypto.randomUUID();
+      const secondColumnId = crypto.randomUUID();
+      return {
+        ...baseBlock,
+        columns: [
+          { id: firstColumnId, name: 'Column 1', type: 'text', width: 240 },
+          { id: secondColumnId, name: 'Column 2', type: 'text', width: 240 },
+        ],
+        rows: [
+          { id: crypto.randomUUID(), cells: { [firstColumnId]: '', [secondColumnId]: '' } },
+        ],
+      } as Block;
+    }
+
+    return baseBlock as Block;
+  }, []);
+
+  const isBlockEmpty = useCallback((block: Block) => {
+    switch (block.type) {
+      case 'text':
+      case 'heading1':
+      case 'heading2':
+      case 'heading3':
+      case 'quote':
+        return !block.content.text.trim();
+      case 'bulletList':
+      case 'numberedList':
+        return block.items.every((item) => !item.text.trim());
+      case 'checkbox':
+      case 'callout':
+        return !block.content.text.trim();
+      case 'code':
+        return !block.content.trim();
+      case 'image':
+        return !block.url.trim() && !block.file_id;
+      case 'file':
+        return !block.file_id;
+      case 'embed':
+        return !block.url.trim();
+      case 'table':
+        return block.rows.every((row) => Object.values(row.cells).every((value) => !String(value ?? '').trim()));
+      case 'divider':
+      case 'toc':
+        return true;
+      default:
+        return false;
+    }
+  }, []);
+
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -125,47 +208,7 @@ export function BlockEditor({
 
   const handleInsertBlock = useCallback((type: Block['type'], position?: number) => {
     const insertPosition = position ?? blocks.length;
-    
-    // Initialize block with proper default values based on type
-    let blockData: Partial<Block> = {
-      id: crypto.randomUUID(),
-      type,
-      position: insertPosition,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    // Add type-specific properties
-    if (type === 'text' || type.startsWith('heading')) {
-      blockData.content = { text: '', marks: [] };
-    } else if (type === 'bulletList' || type === 'numberedList') {
-      blockData.items = [{ text: '', marks: [] }];
-    } else if (type === 'checkbox') {
-      blockData.checked = false;
-      blockData.content = { text: '', marks: [] };
-    } else if (type === 'quote' || type === 'callout') {
-      blockData.content = { text: '', marks: [] };
-    } else if (type === 'code') {
-      blockData.language = 'javascript';
-      blockData.content = '';
-    } else if (type === 'image') {
-      blockData.url = '';
-      blockData.caption = '';
-      blockData.width = 0;
-      blockData.height = 0;
-    } else if (type === 'file') {
-      blockData.file_id = '';
-      blockData.filename = '';
-      blockData.file_type = '';
-      blockData.file_size = 0;
-    } else if (type === 'embed') {
-      blockData.url = '';
-    } else if (type === 'table') {
-      blockData.columns = [];
-      blockData.rows = [];
-    }
-
-    const newBlock = blockData as Block;
+    const newBlock = createBlock(type, insertPosition);
 
     const updatedBlocks = [
       ...blocks.slice(0, insertPosition),
@@ -176,7 +219,7 @@ export function BlockEditor({
     onBlocksChange(updatedBlocks);
     setShowSlashMenu(false);
     announce(`${type} block inserted at position ${insertPosition + 1}`);
-  }, [blocks, onBlocksChange, announce]);
+  }, [blocks, createBlock, onBlocksChange, announce]);
 
   // Keyboard navigation handler
   const handleKeyboardNavigation = useCallback((e: KeyboardEvent) => {
@@ -246,7 +289,27 @@ export function BlockEditor({
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <div className="block-editor relative" role="document" aria-label="Page content editor">
+      <div
+        className="block-editor relative"
+        role="document"
+        aria-label="Page content editor"
+        onClick={(e) => {
+          if (!editable || blocks.length === 0) return;
+
+          // If the user clicks clearly below the last block, insert a new text block there
+          const lastBlock = blocks[blocks.length - 1];
+          const lastEl = blockRefs.current.get(lastBlock.id);
+
+          if (!lastEl) return;
+
+          const rect = lastEl.getBoundingClientRect();
+
+          // If click is below the last block (with a small margin), create a new block and focus it
+          if (e.clientY > rect.bottom + 8) {
+            handleInsertBlock('text', blocks.length);
+          }
+        }}
+      >
         {blocks.length === 0 ? (
           <div 
             className="text-center py-12 px-4 animate-in fade-in duration-300 cursor-text" 
@@ -325,6 +388,7 @@ export function BlockEditor({
                   onMouseLeave={() => setSelectedBlockId(null)}
                 >
                   <BlockRenderer
+                    pageId={pageId}
                     block={block}
                     editable={editable}
                     onUpdate={(updates) => handleBlockUpdate(block.id, updates)}
@@ -353,12 +417,26 @@ export function BlockEditor({
           <SlashCommandMenu
             position={slashMenuPosition}
             onSelect={(type) => {
-              // Find the position of the block that triggered the slash menu
-              const blockIndex = slashMenuBlockId 
-                ? blocks.findIndex(b => b.id === slashMenuBlockId)
+              const blockIndex = slashMenuBlockId
+                ? blocks.findIndex((b) => b.id === slashMenuBlockId)
                 : blocks.length - 1;
-              
-              // Insert after the current block
+
+              if (blockIndex >= 0) {
+                const currentBlock = blocks[blockIndex];
+                if (isBlockEmpty(currentBlock)) {
+                  const replacementBlock = createBlock(type, blockIndex, currentBlock.id);
+                  const updatedBlocks = blocks.map((block, index) =>
+                    index === blockIndex
+                      ? { ...replacementBlock, position: index }
+                      : { ...block, position: index }
+                  );
+                  onBlocksChange(updatedBlocks);
+                  setShowSlashMenu(false);
+                  announce(`${type} block created at position ${blockIndex + 1}`);
+                  return;
+                }
+              }
+
               const insertPosition = blockIndex >= 0 ? blockIndex + 1 : blocks.length;
               handleInsertBlock(type, insertPosition);
             }}

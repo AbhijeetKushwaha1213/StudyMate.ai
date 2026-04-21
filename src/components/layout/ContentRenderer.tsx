@@ -8,9 +8,9 @@ import { SettingsPage } from '../settings/SettingsPage';
 import { NewAchievementsPage } from '../achievements/NewAchievementsPage';
 import { NotificationCenter } from '../notifications/NotificationCenter';
 import { DiscoverResources } from '../discover/DiscoverResources';
-import { NotionResourceManager } from '../notion/NotionResourceManager';
 import { IntegrationsPage } from '../integrations/IntegrationsPage';
 import { useAuth } from '../auth/AuthProvider';
+import { NotionResourceManager } from '../notion/NotionResourceManager';
 
 interface ContentRendererProps {
   activeTab: string;

@@ -24,6 +24,7 @@ export function PageView({ pageId, onNavigate }: PageViewProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [draftBlocks, setDraftBlocks] = useState<Block[]>([]);
 
   // Fetch ancestors for breadcrumb
   useEffect(() => {
@@ -39,6 +40,11 @@ export function PageView({ pageId, onNavigate }: PageViewProps) {
         });
       });
   }, [pageId]);
+
+  useEffect(() => {
+    if (!page) return;
+    setDraftBlocks(page.content || []);
+  }, [page?.id, page?.updated_at, page?.content]);
 
   // Handle title change with auto-save
   const handleTitleChange = useCallback(
@@ -113,6 +119,8 @@ export function PageView({ pageId, onNavigate }: PageViewProps) {
 
   const handleBlocksChange = useCallback(
     (blocks: Block[]) => {
+      setDraftBlocks(blocks);
+
       // Clear existing timeout
       if (blocksUpdateTimeout) {
         clearTimeout(blocksUpdateTimeout);
@@ -225,7 +233,7 @@ export function PageView({ pageId, onNavigate }: PageViewProps) {
       <div className="px-16 pb-32">
         <BlockEditor
           pageId={page.id}
-          blocks={page.content}
+          blocks={draftBlocks}
           onBlocksChange={handleBlocksChange}
           editable={true}
         />

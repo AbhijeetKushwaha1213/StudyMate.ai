@@ -3,6 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
 
+const getAuthRedirectUrl = (path = '/auth/callback') =>
+  new URL(path, window.location.origin).toString();
+
 interface UserProfile {
   id: string;
   user_id: string;
@@ -227,10 +230,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setIsLoading(true);
       
+      // Store a flag to indicate Google OAuth is in progress
+      sessionStorage.setItem('google_oauth_initiated', 'true');
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: getAuthRedirectUrl(),
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -239,6 +245,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) {
+        sessionStorage.removeItem('google_oauth_initiated');
         toast({
           title: "Google Sign In Failed",
           description: error.message,
@@ -247,6 +254,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw error;
       }
     } catch (error) {
+      sessionStorage.removeItem('google_oauth_initiated');
       if (process.env.NODE_ENV === 'development') {
         console.error('Google sign in error:', error);
       }
@@ -276,7 +284,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           data: {
             name: name.trim(),
           },
-          emailRedirectTo: `${window.location.origin}/`
+          emailRedirectTo: getAuthRedirectUrl(),
         }
       });
 
