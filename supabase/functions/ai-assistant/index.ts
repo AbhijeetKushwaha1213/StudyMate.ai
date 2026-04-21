@@ -1,6 +1,6 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 
 const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 
@@ -207,8 +207,10 @@ Rules:
 
     console.log('Calling Gemini API with enhanced topic-focused prompts for:', contentType, 'Topic:', topic || message);
 
-    // Gemini API endpoint - using gemini-1.5-flash for fast, cost-effective responses
-    const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+    // Gemini API endpoint - using gemini-2.5-flash for fast, reliable responses
+    const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+    
+    console.log('Gemini endpoint:', geminiEndpoint.replace(geminiApiKey, 'API_KEY_HIDDEN'));
 
     const response = await fetch(geminiEndpoint, {
       method: 'POST',
@@ -229,6 +231,8 @@ Rules:
         }
       }),
     });
+
+    console.log('Gemini API response status:', response.status);
 
     if (!response.ok) {
       const errorData = await response.text();
