@@ -246,9 +246,29 @@ Rules:
     });
   } catch (error) {
     console.error('Error in ai-assistant function:', error);
+    
+    // Provide more helpful error messages
+    let errorMessage = 'Failed to process request';
+    let errorDetails = error.message;
+    
+    if (error.message?.includes('API key')) {
+      errorMessage = 'Gemini API key not configured';
+      errorDetails = 'Please add GEMINI_API_KEY to Supabase secrets. See GEMINI_SETUP.md for instructions.';
+    } else if (error.message?.includes('429')) {
+      errorMessage = 'Rate limit exceeded';
+      errorDetails = 'Gemini free tier allows 15 requests per minute. Please wait and try again.';
+    } else if (error.message?.includes('400')) {
+      errorMessage = 'Invalid request';
+      errorDetails = 'The request format may be incorrect. Check the Gemini API documentation.';
+    } else if (error.message?.includes('403')) {
+      errorMessage = 'API key invalid or unauthorized';
+      errorDetails = 'Please check your Gemini API key is valid and has the correct permissions.';
+    }
+    
     return new Response(JSON.stringify({ 
-      error: 'Failed to process request',
-      details: error.message 
+      error: errorMessage,
+      details: errorDetails,
+      timestamp: new Date().toISOString()
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
