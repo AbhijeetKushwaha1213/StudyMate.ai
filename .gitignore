@@ -29,3 +29,10 @@ dist-ssr
 *.sw?
 
 /generated/prisma
+
+# SQLite local database
+prisma/dev.db
+prisma/dev.db-journal
+
+# Conflicting lockfiles (project uses npm)
+bun.lockb
