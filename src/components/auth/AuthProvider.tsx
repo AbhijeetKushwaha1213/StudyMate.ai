@@ -35,6 +35,7 @@ interface AuthContextType {
   updateUserType: (type: 'exam' | 'college', details: any) => Promise<void>;
   updateUser: (updatedUser: UserProfile) => void;
   refetch: () => Promise<void>;
+  signInOffline: (name: string, userType?: 'exam' | 'college') => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -132,6 +133,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
+      const offlineSession = localStorage.getItem('studymate-offline-session');
+      if (offlineSession) {
+        console.log('AuthProvider: Loading local offline session');
+        try {
+          setUser(JSON.parse(offlineSession));
+        } catch (e) {
+          console.error('Error parsing offline session', e);
+        }
+        setIsLoading(false);
+        return;
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         await fetchUserProfile(session.user);
@@ -143,6 +156,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Listen for auth changes - SECURITY FIX: Prevent deadlocks
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // If we are in local offline mode, ignore Supabase auth state change events
+      if (localStorage.getItem('studymate-offline-session') !== null) {
+        return;
+      }
+
       // Only log in development to prevent sensitive data exposure
       if (process.env.NODE_ENV === 'development') {
         console.log('Auth state changed:', event, session?.user?.email);
@@ -319,14 +337,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        toast({
-          title: "Sign Out Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-        throw error;
+      localStorage.removeItem('studymate-offline-session');
+      
+      // Check if there is an active Supabase session before attempting to sign out from cloud
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          toast({
+            title: "Sign Out Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+          throw error;
+        }
       }
       
       setUser(null);
@@ -340,11 +364,62 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const signInOffline = async (name: string, userType: 'exam' | 'college' = 'exam') => {
+    setIsLoading(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      
+      const mockUser: UserProfile = {
+        id: 'local-dev-user-id',
+        user_id: 'local-dev-user-id',
+        name: name || 'Offline Scholar',
+        email: 'offline@studymate.local',
+        userType: userType,
+        study_streak: 3,
+        total_study_hours: 12.5,
+        current_level: 2,
+        experience_points: 450,
+      };
+      
+      setUser(mockUser);
+      localStorage.setItem('studymate-offline-session', JSON.stringify(mockUser));
+      toast({
+        title: "Signed In (Local Offline Mode)",
+        description: "You are signed in locally. All data will be saved on your device.",
+      });
+    } catch (error) {
+      console.error('Offline sign in error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const updateUser = (updatedUser: UserProfile) => {
     setUser(updatedUser);
   };
 
   const updateUserType = async (type: 'exam' | 'college', details: any) => {
+    if (localStorage.getItem('studymate-offline-session') !== null) {
+      // Local mode profile update
+      const updatedUser: UserProfile = {
+        ...user!,
+        name: details.name || user!.name,
+        userType: type,
+        examType: details.examType || user!.examType,
+        college: details.college || user!.college,
+        branch: details.course || user!.branch,
+        semester: details.semester || user!.semester,
+        examDate: details.examDate || user!.examDate,
+      };
+      setUser(updatedUser);
+      localStorage.setItem('studymate-offline-session', JSON.stringify(updatedUser));
+      toast({
+        title: "Profile Setup Complete! ✅",
+        description: "Your study preferences have been saved locally.",
+      });
+      return;
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) {
       throw new Error('No authenticated user found');
@@ -462,6 +537,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signIn,
       signInWithGoogle,
       signUp,
+      signInOffline,
       signOut,
       updateUserType,
       updateUser,

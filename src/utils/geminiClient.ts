@@ -1,28 +1,38 @@
+// Client-side Google Gemini API Client
+// Used as a fallback when Supabase Edge Functions are unreachable
 
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+export interface GeminiRequest {
+  message: string;
+  context?: { role: string; content: string }[];
+  userType?: string;
+  subject?: string;
+  contentType?: string;
+  topic?: string;
+  difficulty?: string;
+  count?: number;
+}
 
-const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+export interface GeminiResponse {
+  response: string;
+  error?: string;
+  details?: string;
+}
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  try {
-    const { message, context, userType, subject, contentType, topic, difficulty, count } = await req.json();
-
-    if (!geminiApiKey) {
-      throw new Error('Gemini API key not configured');
+export const geminiClient = {
+  async generateContent(req: GeminiRequest): Promise<GeminiResponse> {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    
+    if (!apiKey) {
+      return {
+        response: "",
+        error: "Gemini API key not configured",
+        details: "VITE_GEMINI_API_KEY is not defined in your environment variables. Please check your .env configuration."
+      };
     }
 
-    // Enhanced system prompts for different content types with strict topic anchoring
+    const { message, context, userType, subject, contentType, topic, difficulty, count } = req;
+
+    // System Prompts matching the Deno Edge Function
     const getSystemPrompt = (type: string) => {
       const basePrompt = `You are an expert educational content creator. 
 
@@ -202,90 +212,61 @@ Rules:
       Generate ${contentType} content STRICTLY for "${topic || message}" ONLY. Focus exclusively on the provided topic and ensure all content is accurate, relevant, and directly related to "${topic || message}". DO NOT include any concepts from other subjects or unrelated topics.` 
       : message;
 
-    // Gemini uses a different message format
     const geminiPrompt = `${systemPrompt}\n\nUser Request:\n${userPrompt}`;
 
-    console.log('Calling Gemini API with enhanced topic-focused prompts for:', contentType, 'Topic:', topic || message);
+    try {
+      const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      
+      const response = await fetch(geminiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: geminiPrompt
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 2048,
+            topP: 0.8,
+            topK: 10
+          }
+        }),
+      });
 
-    // Gemini API endpoint - using gemini-1.5-flash (stable, reliable model)
-    const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
-    
-    console.log('Gemini endpoint:', geminiEndpoint.replace(geminiApiKey, 'API_KEY_HIDDEN'));
+      if (!response.ok) {
+        const errorData = await response.text();
+        return {
+          response: "",
+          error: `Gemini API error: ${response.status}`,
+          details: errorData
+        };
+      }
 
-    const response = await fetch(geminiEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: geminiPrompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 2048,
-          topP: 0.8,
-          topK: 10
-        }
-      }),
-    });
+      const data = await response.json();
+      let aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
+      
+      // Clean up markdown blocks
+      if (aiResponse.includes('```json')) {
+        aiResponse = aiResponse.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+      } else if (aiResponse.includes('```')) {
+        aiResponse = aiResponse.replace(/```\s*/g, '');
+      }
+      
+      aiResponse = aiResponse.trim();
 
-    console.log('Gemini API response status:', response.status);
+      return { response: aiResponse };
 
-    if (!response.ok) {
-      const errorData = await response.text();
-      console.error('Gemini API error:', response.status, errorData);
-      throw new Error(`Gemini API error: ${response.status}`);
+    } catch (error) {
+      console.error('Error calling Gemini directly:', error);
+      return {
+        response: "",
+        error: error instanceof Error ? error.message : "Failed to contact Gemini API",
+        details: "Network connection or request execution failed."
+      };
     }
-
-    const data = await response.json();
-    let aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
-    
-    // Clean up the response - remove markdown code blocks if present
-    if (aiResponse.includes('```json')) {
-      aiResponse = aiResponse.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-    } else if (aiResponse.includes('```')) {
-      aiResponse = aiResponse.replace(/```\s*/g, '');
-    }
-    
-    // Trim whitespace
-    aiResponse = aiResponse.trim();
-
-    console.log('AI response generated successfully for topic:', topic || message);
-
-    return new Response(JSON.stringify({ response: aiResponse }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    console.error('Error in ai-assistant function:', error);
-    
-    // Provide more helpful error messages
-    let errorMessage = 'Failed to process request';
-    let errorDetails = error.message;
-    
-    if (error.message?.includes('API key')) {
-      errorMessage = 'Gemini API key not configured';
-      errorDetails = 'Please add GEMINI_API_KEY to Supabase secrets. See GEMINI_SETUP.md for instructions.';
-    } else if (error.message?.includes('429')) {
-      errorMessage = 'Rate limit exceeded';
-      errorDetails = 'Gemini free tier allows 15 requests per minute. Please wait and try again.';
-    } else if (error.message?.includes('400')) {
-      errorMessage = 'Invalid request';
-      errorDetails = 'The request format may be incorrect. Check the Gemini API documentation.';
-    } else if (error.message?.includes('403')) {
-      errorMessage = 'API key invalid or unauthorized';
-      errorDetails = 'Please check your Gemini API key is valid and has the correct permissions.';
-    }
-    
-    return new Response(JSON.stringify({ 
-      error: errorMessage,
-      details: errorDetails,
-      timestamp: new Date().toISOString()
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
   }
-});
+};

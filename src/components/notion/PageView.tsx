@@ -44,7 +44,7 @@ export function PageView({ pageId, onNavigate }: PageViewProps) {
   useEffect(() => {
     if (!page) return;
     setDraftBlocks(page.content || []);
-  }, [page?.id, page?.updated_at, page?.content]);
+  }, [page?.id]);
 
   // Handle title change with auto-save
   const handleTitleChange = useCallback(
@@ -150,14 +150,14 @@ export function PageView({ pageId, onNavigate }: PageViewProps) {
     [updatePage, blocksUpdateTimeout]
   );
 
-  // Cleanup timeout on unmount
+  // Cleanup timeout on unmount or page change
   useEffect(() => {
     return () => {
       if (blocksUpdateTimeout) {
         clearTimeout(blocksUpdateTimeout);
       }
     };
-  }, [blocksUpdateTimeout]);
+  }, [blocksUpdateTimeout, pageId]);
 
   // Loading state
   if (isLoading) {

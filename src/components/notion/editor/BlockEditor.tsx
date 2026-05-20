@@ -296,7 +296,7 @@ export function BlockEditor({
         onClick={(e) => {
           if (!editable || blocks.length === 0) return;
 
-          // If the user clicks clearly below the last block, insert a new text block there
+          // If the user clicks clearly below the last block, focus it if empty, or insert a new text block there
           const lastBlock = blocks[blocks.length - 1];
           const lastEl = blockRefs.current.get(lastBlock.id);
 
@@ -304,9 +304,14 @@ export function BlockEditor({
 
           const rect = lastEl.getBoundingClientRect();
 
-          // If click is below the last block (with a small margin), create a new block and focus it
+          // If click is below the last block (with a small margin)
           if (e.clientY > rect.bottom + 8) {
-            handleInsertBlock('text', blocks.length);
+            if (isBlockEmpty(lastBlock)) {
+              const focusable = lastEl.querySelector('.ProseMirror, input:not([disabled]), textarea:not([disabled])');
+              (focusable as HTMLElement)?.focus();
+            } else {
+              handleInsertBlock('text', blocks.length);
+            }
           }
         }}
       >

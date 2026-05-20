@@ -1528,7 +1528,7 @@ export type Database = {
           proficiency_level: number | null
           progress: number | null
           skill: string | null
-          skill_name: string
+          skill_name?: string | null
           updated_at: string | null
           user_id: string
         }
@@ -1539,7 +1539,7 @@ export type Database = {
           proficiency_level?: number | null
           progress?: number | null
           skill?: string | null
-          skill_name: string
+          skill_name?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -1550,7 +1550,7 @@ export type Database = {
           proficiency_level?: number | null
           progress?: number | null
           skill?: string | null
-          skill_name?: string
+          skill_name?: string | null
           updated_at?: string | null
           user_id?: string
         }

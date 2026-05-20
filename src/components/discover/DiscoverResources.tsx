@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '../auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isLocalMode } from '@/integrations/supabase/client';
+import { localStore } from '@/utils/localStore';
 import { 
   Search, 
   Plus, 
@@ -27,8 +28,8 @@ interface DiscoverResourcesProps {
 
 interface Skill {
   id: string;
-  skill_name: string;
-  proficiency_level: number;
+  skill: string;
+  progress: number;
 }
 
 interface Project {
@@ -64,6 +65,11 @@ export const DiscoverResources = ({ onNavigate }: DiscoverResourcesProps) => {
     if (!user?.user_id) return;
     
     try {
+      if (isLocalMode()) {
+        setSkills(localStore.getSkills());
+        return;
+      }
+
       const { data, error } = await supabase
         .from('user_skills')
         .select('*')
@@ -99,12 +105,27 @@ export const DiscoverResources = ({ onNavigate }: DiscoverResourcesProps) => {
 
     setIsLoadingSkills(true);
     try {
+      if (isLocalMode()) {
+        localStore.saveSkill({
+          skill: skillInput.trim(),
+          category: 'General',
+          progress: 10
+        });
+        toast({
+          title: "Skill Added",
+          description: `Added "${skillInput}" to your skills.`,
+        });
+        setSkillInput('');
+        fetchSkills();
+        return;
+      }
+
       const { error } = await supabase
         .from('user_skills')
         .insert({
           user_id: user.user_id,
-          skill_name: skillInput.trim(),
-          proficiency_level: 1
+          skill: skillInput.trim(),
+          progress: 10
         });
 
       if (error) throw error;
@@ -129,6 +150,16 @@ export const DiscoverResources = ({ onNavigate }: DiscoverResourcesProps) => {
 
   const handleDeleteSkill = async (skillId: string) => {
     try {
+      if (isLocalMode()) {
+        localStore.deleteSkill(skillId);
+        toast({
+          title: "Skill Removed",
+          description: "Skill has been removed from your list.",
+        });
+        fetchSkills();
+        return;
+      }
+
       const { error } = await supabase
         .from('user_skills')
         .delete()
@@ -313,7 +344,7 @@ export const DiscoverResources = ({ onNavigate }: DiscoverResourcesProps) => {
               {skills.map((skill) => (
                 <div key={skill.id} className="flex items-center gap-1">
                   <Badge variant="secondary">
-                    {skill.skill_name} (Level {skill.proficiency_level})
+                    {skill.skill} ({skill.progress}%)
                   </Badge>
                   <Button
                     variant="ghost"

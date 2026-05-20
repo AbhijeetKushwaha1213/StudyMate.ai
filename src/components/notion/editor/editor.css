@@ -1,6 +1,7 @@
 /* Block Editor Styles */
 .block-editor {
-  @apply w-full;
+  @apply w-full min-h-[65vh];
+  cursor: text;
 }
 
 .block-editor .ProseMirror {

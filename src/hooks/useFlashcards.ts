@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isLocalMode } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
+import { localStore } from '@/utils/localStore';
 
 export interface Flashcard {
   id: string;
@@ -23,6 +23,7 @@ export interface Flashcard {
 export interface StudyMaterial {
   id: string;
   title: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content: any;
   type: 'flashcards' | 'mindmaps' | 'quizzes' | 'diagrams' | 'notes';
   topic: string;
@@ -48,6 +49,10 @@ export const useFlashcards = () => {
     queryFn: async () => {
       if (!user?.user_id) return [];
       
+      if (isLocalMode()) {
+        return localStore.getFlashcards();
+      }
+
       const { data, error } = await supabase
         .from('flashcards')
         .select('*')
@@ -73,6 +78,10 @@ export const useFlashcards = () => {
     queryKey: ['study_materials', user?.user_id],
     queryFn: async () => {
       if (!user?.user_id) return [];
+
+      if (isLocalMode()) {
+        return localStore.getStudyMaterials();
+      }
       
       const { data, error } = await supabase
         .from('study_materials')
@@ -101,6 +110,10 @@ export const useFlashcards = () => {
       if (!user?.user_id) throw new Error('User not authenticated');
 
       console.log('Creating flashcard:', newFlashcard);
+
+      if (isLocalMode()) {
+        return localStore.saveFlashcard(newFlashcard);
+      }
 
       const { data, error } = await supabase
         .from('flashcards')
@@ -146,6 +159,10 @@ export const useFlashcards = () => {
 
       console.log('Creating study material:', newMaterial);
 
+      if (isLocalMode()) {
+        return localStore.saveStudyMaterial(newMaterial);
+      }
+
       const { data, error } = await supabase
         .from('study_materials')
         .insert([{
@@ -182,6 +199,10 @@ export const useFlashcards = () => {
   // Update flashcard
   const updateFlashcard = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Flashcard> }) => {
+      if (isLocalMode()) {
+        return localStore.updateFlashcard(id, updates);
+      }
+
       const { data, error } = await supabase
         .from('flashcards')
         .update({
@@ -215,6 +236,10 @@ export const useFlashcards = () => {
   // Delete flashcard
   const deleteFlashcard = useMutation({
     mutationFn: async (id: string) => {
+      if (isLocalMode()) {
+        return localStore.deleteFlashcard(id);
+      }
+
       const { error } = await supabase
         .from('flashcards')
         .delete()
@@ -242,6 +267,10 @@ export const useFlashcards = () => {
   // Delete study material
   const deleteStudyMaterial = useMutation({
     mutationFn: async (id: string) => {
+      if (isLocalMode()) {
+        return localStore.deleteStudyMaterial(id);
+      }
+
       const { error } = await supabase
         .from('study_materials')
         .delete()

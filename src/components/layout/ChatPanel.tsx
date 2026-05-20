@@ -6,8 +6,12 @@ import {
   X, 
   Send, 
   Bot,
-  User as UserIcon
+  User as UserIcon,
+  Copy,
+  Check
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface Message {
   id: string;
@@ -22,6 +26,8 @@ interface ChatPanelProps {
 }
 
 export const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
+  const { toast } = useToast();
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>(() => {
     const saved = localStorage.getItem('studymate-chat-messages');
     if (saved) {
@@ -45,6 +51,19 @@ export const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    toast({
+      title: "Copied!",
+      description: "Message content copied to clipboard.",
+      duration: 2000
+    });
+    setTimeout(() => {
+      setCopiedId(null);
+    }, 2000);
+  };
+
   // Save messages to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('studymate-chat-messages', JSON.stringify(messages));
@@ -56,30 +75,63 @@ export const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
     }
   }, [messages]);
 
-  const sendMessage = () => {
-    if (inputMessage.trim()) {
-      const userMessage: Message = {
-        id: Date.now().toString(),
-        text: inputMessage.trim(),
-        sender: 'user',
+  const sendMessage = async () => {
+    if (!inputMessage.trim() || isTyping) return;
+
+    const userMsgText = inputMessage.trim();
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      text: userMsgText,
+      sender: 'user',
+      timestamp: new Date(),
+    };
+    
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    setInputMessage('');
+    setIsTyping(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-assistant', {
+        body: {
+          message: userMsgText,
+          context: 'sidebar assistant',
+          conversationHistory: updatedMessages.slice(-10).map(msg => ({
+            role: msg.sender === 'user' ? 'user' : 'assistant',
+            content: msg.text
+          }))
+        }
+      });
+
+      if (error) {
+        console.error('AI Assistant Error:', error);
+        throw error;
+      }
+
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: data.response || "I'm sorry, I couldn't process your request right now.",
+        sender: 'ai',
         timestamp: new Date(),
       };
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Error calling AI assistant:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "I'm sorry, I'm having trouble connecting right now. Please try again later.",
+        sender: 'ai',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
       
-      setMessages([...messages, userMessage]);
-      setInputMessage('');
-      setIsTyping(true);
-
-      // Simulate AI response
-      setTimeout(() => {
-        const aiMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          text: 'I understand your question. Let me help you with that!',
-          sender: 'ai',
-          timestamp: new Date(),
-        };
-        setMessages(prev => [...prev, aiMessage]);
-        setIsTyping(false);
-      }, 1500);
+      toast({
+        title: "Connection Error",
+        description: "Unable to reach AI assistant. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTyping(false);
     }
   };
 
@@ -166,11 +218,24 @@ export const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
                     >
                       <p className="text-sm break-words">{message.text}</p>
                     </div>
-                    <span className={`text-xs text-muted-foreground mt-1 ${
-                      message.sender === 'user' ? 'text-right' : 'text-left'
+                    <div className={`flex items-center gap-2 mt-1 ${
+                      message.sender === 'user' ? 'justify-end' : 'justify-start'
                     }`}>
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+                      <span className="text-xs text-muted-foreground">
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      <button
+                        onClick={() => handleCopy(message.text, message.id)}
+                        className="p-0.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        title="Copy message"
+                      >
+                        {copiedId === message.id ? (
+                          <Check className="w-3 h-3" />
+                        ) : (
+                          <Copy className="w-3 h-3" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

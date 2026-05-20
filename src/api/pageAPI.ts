@@ -1,4 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isLocalMode } from '@/integrations/supabase/client';
+import { cacheService } from '@/services/cacheService';
 import type { Page, CreatePageInput, UpdatePageInput } from '@/types/notion';
 
 /**
@@ -12,6 +13,25 @@ export async function createPage(data: CreatePageInput): Promise<Page> {
   // Validate title
   if (!data.title || data.title.trim().length === 0) {
     throw new Error('Page title is required');
+  }
+
+  if (isLocalMode()) {
+    const page: Page = {
+      id: `local-page-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      user_id: 'local-dev-user-id',
+      title: data.title.trim(),
+      parent_id: data.parent_id ?? null,
+      icon: data.icon ?? null,
+      cover_image: data.cover_image ?? null,
+      content: data.content ?? [],
+      position: data.position ?? 0,
+      is_favorite: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      deleted_at: null,
+    };
+    await cacheService.cachePage(page);
+    return page;
   }
 
   // Get current user
@@ -50,6 +70,14 @@ export async function createPage(data: CreatePageInput): Promise<Page> {
  * Get a page by ID
  */
 export async function getPage(id: string): Promise<Page> {
+  if (isLocalMode()) {
+    const page = await cacheService.getCachedPage(id);
+    if (!page || page.deleted_at) {
+      throw new Error('Page not found');
+    }
+    return page;
+  }
+
   const { data: page, error } = await supabase
     .from('pages')
     .select('*')
@@ -75,6 +103,25 @@ export async function updatePage(id: string, data: UpdatePageInput): Promise<Pag
   // Validate title if provided
   if (data.title !== undefined && data.title.trim().length === 0) {
     throw new Error('Page title cannot be empty');
+  }
+
+  if (isLocalMode()) {
+    const page = await cacheService.getCachedPage(id);
+    if (!page || page.deleted_at) {
+      throw new Error('Page not found');
+    }
+    const updated: Page = {
+      ...page,
+      title: data.title !== undefined ? data.title.trim() : page.title,
+      icon: data.icon !== undefined ? data.icon : page.icon,
+      cover_image: data.cover_image !== undefined ? data.cover_image : page.cover_image,
+      content: data.content !== undefined ? data.content : page.content,
+      position: data.position !== undefined ? data.position : page.position,
+      is_favorite: data.is_favorite !== undefined ? data.is_favorite : page.is_favorite,
+      updated_at: new Date().toISOString(),
+    };
+    await cacheService.cachePage(updated);
+    return updated;
   }
 
   // Prepare update data
@@ -125,6 +172,18 @@ export async function updatePage(id: string, data: UpdatePageInput): Promise<Pag
  * Delete a page (soft delete)
  */
 export async function deletePage(id: string): Promise<void> {
+  if (isLocalMode()) {
+    const page = await cacheService.getCachedPage(id);
+    if (page) {
+      const updated = {
+        ...page,
+        deleted_at: new Date().toISOString(),
+      };
+      await cacheService.cachePage(updated);
+    }
+    return;
+  }
+
   const { error } = await supabase
     .from('pages')
     .update({ deleted_at: new Date().toISOString() })
@@ -150,6 +209,21 @@ export async function movePage(
     if (ancestors.some(ancestor => ancestor.id === id)) {
       throw new Error('Cannot move page to its own descendant');
     }
+  }
+
+  if (isLocalMode()) {
+    const page = await cacheService.getCachedPage(id);
+    if (!page || page.deleted_at) {
+      throw new Error('Page not found');
+    }
+    const updated: Page = {
+      ...page,
+      parent_id: newParentId,
+      position: position,
+      updated_at: new Date().toISOString(),
+    };
+    await cacheService.cachePage(updated);
+    return updated;
   }
 
   // Update page parent and position
@@ -180,6 +254,11 @@ export async function movePage(
  * Get child pages of a parent (or root pages if parentId is null)
  */
 export async function getPageChildren(parentId: string | null): Promise<Page[]> {
+  if (isLocalMode()) {
+    const children = await cacheService.getCachedChildren(parentId, 'local-dev-user-id');
+    return children.filter(p => !p.deleted_at).sort((a, b) => a.position - b.position);
+  }
+
   // Get current user
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) {
@@ -213,6 +292,20 @@ export async function getPageChildren(parentId: string | null): Promise<Page[]> 
  * Returns array from root to immediate parent
  */
 export async function getPageAncestors(pageId: string): Promise<Page[]> {
+  if (isLocalMode()) {
+    const ancestors: Page[] = [];
+    let currentId: string | null = pageId;
+    while (currentId) {
+      const page = await cacheService.getCachedPage(currentId);
+      if (!page || page.deleted_at) break;
+      if (page.id !== pageId) {
+        ancestors.unshift(page);
+      }
+      currentId = page.parent_id;
+    }
+    return ancestors;
+  }
+
   const ancestors: Page[] = [];
   let currentId: string | null = pageId;
 
@@ -244,6 +337,20 @@ export async function getPageAncestors(pageId: string): Promise<Page[]> {
  * Toggle favorite status of a page
  */
 export async function toggleFavorite(id: string): Promise<Page> {
+  if (isLocalMode()) {
+    const page = await cacheService.getCachedPage(id);
+    if (!page || page.deleted_at) {
+      throw new Error('Page not found');
+    }
+    const updated: Page = {
+      ...page,
+      is_favorite: !page.is_favorite,
+      updated_at: new Date().toISOString(),
+    };
+    await cacheService.cachePage(updated);
+    return updated;
+  }
+
   // Get current page to check its favorite status
   const currentPage = await getPage(id);
   
@@ -277,6 +384,11 @@ export async function toggleFavorite(id: string): Promise<Page> {
  * Get all favorited pages for the current user
  */
 export async function getFavorites(): Promise<Page[]> {
+  if (isLocalMode()) {
+    const pages = await cacheService.getCachedPages('local-dev-user-id');
+    return pages.filter(p => p.is_favorite && !p.deleted_at).sort((a, b) => a.position - b.position);
+  }
+
   // Get current user
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) {

@@ -167,7 +167,7 @@ function TextBlockRenderer({ block, editable, onUpdate, onSlashCommand }: BlockR
     if (editor && editable && content.text === '') {
       editor.commands.focus();
     }
-  }, []);
+  }, [editor, editable, content.text]);
 
   return (
     <div
@@ -380,6 +380,7 @@ function CheckboxBlockRenderer({ block, editable, onUpdate }: Omit<BlockRenderer
           type="text"
           value={block.content.text}
           onChange={handleTextChange}
+          autoFocus={block.content.text === ''}
           className={`flex-1 bg-transparent outline-none focus:bg-accent/20 px-1 py-0.5 rounded transition-colors ${
             block.checked ? 'line-through text-muted-foreground' : ''
           }`}
@@ -415,6 +416,7 @@ function CalloutBlockRenderer({ block, editable, onUpdate }: Omit<BlockRendererP
             onChange={(e) => onUpdate({ content: { text: e.target.value, marks: [] } } as Partial<Block>)}
             className="flex-1 bg-white/80"
             placeholder="Callout text..."
+            autoFocus={block.content.text === ''}
           />
         </>
       ) : (
@@ -448,6 +450,7 @@ function CodeBlockRenderer({ block, editable, onUpdate }: Omit<BlockRendererProp
             onChange={(e) => onUpdate({ content: e.target.value } as Partial<Block>)}
             className="min-h-32 font-mono bg-transparent border-0 p-0 focus-visible:ring-0"
             placeholder="Write code..."
+            autoFocus={block.content === ''}
           />
         ) : (
           <code className={`language-${block.language || 'text'}`}>{block.content}</code>

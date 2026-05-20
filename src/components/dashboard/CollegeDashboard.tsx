@@ -4,25 +4,26 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Code, Calendar, Users, Trophy, BookOpen, Briefcase, Star, Zap, ArrowRight, Plus } from 'lucide-react';
+import { Code, Calendar, Users, Trophy, BookOpen, Briefcase, Star, Zap, ArrowRight, Plus, ChevronDown, ChevronUp, Check, Lock, Trash2 } from 'lucide-react';
 import ProjectFocusView from '../projects/ProjectFocusView';
 import { AddProjectDialog } from '../projects/AddProjectDialog';
 import { AddSkillDialog } from '../skills/AddSkillDialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '../auth/AuthProvider';
 import { useProjects } from '@/hooks/useProjects';
-import { useSkills } from '@/hooks/useSkills';
+import { useSkills, getSkillCategory, parseSkillDetails } from '@/hooks/useSkills';
 import { useUserStats } from '@/hooks/useUserStats';
 
 
 export const CollegeDashboard = () => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'project-focus'>('dashboard');
   const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [expandedSkillId, setExpandedSkillId] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   
   const { projects, updateProject } = useProjects();
-  const { skills, updateSkill } = useSkills();
+  const { skills, updateSkill, deleteSkill } = useSkills();
   const { userStats } = useUserStats();
 
   const handleContinueProject = (project: any) => {
@@ -46,7 +47,7 @@ export const CollegeDashboard = () => {
     const skillProject = {
       id: `skill-${skill.id}`,
       name: `${skill.skill} Learning`,
-      type: skill.category.toLowerCase(),
+      type: getSkillCategory(skill.category).toLowerCase(),
       deadline: 'ongoing',
       description: `Learning and practicing ${skill.skill}`,
       progress: skill.progress
@@ -59,16 +60,69 @@ export const CollegeDashboard = () => {
     });
   };
 
-  const handleProgressSkill = (skillId: string) => {
-    const skill = skills.find(s => s.id === skillId);
-    if (skill) {
-      const newProgress = Math.min(skill.progress + 10, 100);
-      updateSkill({ id: skillId, updates: { progress: newProgress } });
-      toast({
-        title: "Progress Updated! 📈",
-        description: "Your skill progress has been updated.",
-      });
+  const handleToggleTopic = (skill: any, topicId: string) => {
+    const details = parseSkillDetails(skill.category);
+    const updatedSyllabus = details.syllabus.map(t => {
+      if (t.id === topicId) {
+        return { ...t, completed: !t.completed };
+      }
+      return t;
+    });
+
+    const completedCount = updatedSyllabus.filter(t => t.completed).length;
+    const totalCount = updatedSyllabus.length;
+    const newProgress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+    // Check if the current active day advanced
+    const firstUncompletedBefore = details.syllabus.find(t => !t.completed);
+    const activeDayBefore = firstUncompletedBefore ? firstUncompletedBefore.dayNumber : 1;
+
+    const firstUncompletedAfter = updatedSyllabus.find(t => !t.completed);
+    const activeDayAfter = firstUncompletedAfter ? firstUncompletedAfter.dayNumber : 1;
+
+    let newUnlockedDays = details.unlockedDays || 0;
+    if (activeDayAfter > activeDayBefore) {
+      newUnlockedDays = Math.max(0, newUnlockedDays - (activeDayAfter - activeDayBefore));
     }
+
+    const updatedCategory = {
+      ...details,
+      syllabus: updatedSyllabus,
+      unlockedDays: newUnlockedDays
+    };
+
+    updateSkill({
+      id: skill.id,
+      updates: {
+        progress: newProgress,
+        category: JSON.stringify(updatedCategory)
+      }
+    });
+
+    toast({
+      title: "Target Updated!",
+      description: "Your daily learning target status has been updated.",
+    });
+  };
+
+  const handleUnlockNextDay = (skill: any) => {
+    const details = parseSkillDetails(skill.category);
+    const updatedCategory = {
+      ...details,
+      unlockedDays: (details.unlockedDays || 0) + 1
+    };
+
+    updateSkill({
+      id: skill.id,
+      updates: {
+        category: JSON.stringify(updatedCategory)
+      }
+    });
+
+    toast({
+      title: "Next Targets Unlocked! 🚀",
+      description: "You've unlocked the next set of topics to study ahead!",
+    });
   };
 
   const handleAddProject = () => {
@@ -95,6 +149,7 @@ export const CollegeDashboard = () => {
   if (currentView === 'project-focus' && selectedProject) {
     return (
       <ProjectFocusView
+        projectId={selectedProject.id}
         projectName={selectedProject.name}
         projectType={selectedProject.type}
         deadline={selectedProject.deadline}
@@ -242,39 +297,283 @@ export const CollegeDashboard = () => {
             } />
           </div>
         ) : (
-          <div className="space-y-4">
-            {skills.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                <div className="flex-1">
-                  <div className="flex justify-between items-center mb-2">
-                    <div className="flex items-center space-x-2">
-                      <span className="font-medium text-foreground">{item.skill}</span>
-                      <Badge variant="secondary" className="text-xs">{item.category}</Badge>
-                    </div>
-                    <span className="text-sm font-medium">{item.progress}%</span>
+          (() => {
+            const activeSkills = skills.filter(item => item.progress < 100);
+            const completedSkills = skills.filter(item => item.progress === 100);
+
+            return (
+              <div className="space-y-4">
+                {activeSkills.length === 0 && completedSkills.length > 0 ? (
+                  <div className="text-center py-4 border border-dashed rounded-xl bg-muted/20">
+                    <p className="text-sm text-muted-foreground">All your added skills are fully mastered! 🏆</p>
                   </div>
-                  <Progress value={item.progress} className="h-2" />
-                </div>
-                <div className="flex space-x-2 ml-4">
-                  <Button 
-                    onClick={() => handleContinueSkill(item)}
-                    size="sm" 
-                    variant="outline"
-                  >
-                    Continue Learning
-                    <ArrowRight className="w-4 h-4 ml-1" />
-                  </Button>
-                  <Button 
-                    onClick={() => handleProgressSkill(item.id)}
-                    size="sm" 
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    +10%
-                  </Button>
-                </div>
+                ) : (
+                  activeSkills.map((item) => {
+                    const details = parseSkillDetails(item.category);
+                    const isExpanded = expandedSkillId === item.id;
+                    
+                    // Compute target statistics
+                    const syllabus = details.syllabus || [];
+                    const firstUncompleted = syllabus.find(t => !t.completed);
+                    const activeDay = firstUncompleted ? firstUncompleted.dayNumber : (syllabus.length > 0 ? Math.max(...syllabus.map(t => t.dayNumber)) : 1);
+                    const visibleDayLimit = activeDay + (details.unlockedDays || 0);
+                    
+                    const todayTargets = syllabus.filter(t => !t.completed && t.dayNumber <= visibleDayLimit);
+                    const allTodayTargets = syllabus.filter(t => t.dayNumber <= visibleDayLimit);
+                    const completedToday = allTodayTargets.filter(t => t.completed).length;
+                    const totalToday = allTodayTargets.length;
+                    
+                    const isSyllabusEmpty = syllabus.length === 0;
+                    const isTodayCompleted = todayTargets.length === 0;
+
+                    return (
+                      <div 
+                        key={item.id} 
+                        className="border border-border/60 rounded-xl overflow-hidden bg-gradient-to-b from-card to-card/50 shadow-sm transition-all duration-300 hover:shadow-md"
+                      >
+                        {/* Collapsed Header Summary */}
+                        <div 
+                          onClick={() => setExpandedSkillId(isExpanded ? null : item.id)}
+                          className="flex flex-col sm:flex-row sm:items-center justify-between p-4 cursor-pointer hover:bg-muted/30 transition-colors gap-4"
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2.5 mb-2">
+                              <span className="font-bold text-foreground text-base tracking-tight">{item.skill}</span>
+                              <Badge variant="secondary" className="text-xs bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300 border-indigo-100/50">
+                                {details.categoryName}
+                              </Badge>
+                              {isTodayCompleted && !isSyllabusEmpty ? (
+                                <Badge className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border-0">
+                                  Today Done 🎉
+                                </Badge>
+                              ) : !isSyllabusEmpty ? (
+                                <Badge variant="outline" className="text-xs text-muted-foreground border-border/80">
+                                  {todayTargets.length} targets left
+                                </Badge>
+                              ) : null}
+                            </div>
+                            
+                            <div className="flex items-center space-x-3">
+                              <Progress value={item.progress} className="h-2 w-32 bg-secondary" />
+                              <span className="text-sm font-semibold text-foreground">{item.progress}%</span>
+                              {!isSyllabusEmpty && (
+                                <span className="text-xs text-muted-foreground hidden md:inline-block">
+                                  • Day {activeDay} of {Math.max(...syllabus.map(t => t.dayNumber))}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-2 self-end sm:self-center">
+                            <Button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleContinueSkill(item);
+                              }}
+                              size="sm" 
+                              variant="outline"
+                              className="h-8 border-border hover:bg-muted"
+                            >
+                              Continue
+                              <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                            </Button>
+                            
+                            <Button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm(`Are you sure you want to delete the skill "${item.skill}"?`)) {
+                                  deleteSkill(item.id);
+                                }
+                              }}
+                              size="sm" 
+                              variant="ghost"
+                              className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 text-muted-foreground"
+                            >
+                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Expanded Syllabus and Details */}
+                        {isExpanded && (
+                          <div className="border-t border-border/60 bg-muted/10 p-5 space-y-5 animate-in fade-in slide-in-from-top-1 duration-200">
+                            {/* Preferences and Metadata */}
+                            <div className="flex flex-wrap items-center justify-between gap-3 text-sm border-b border-border/40 pb-4">
+                              <div className="flex items-center gap-4 text-muted-foreground">
+                                <div>
+                                  <span className="font-semibold text-foreground">Pace:</span>{' '}
+                                  <span className="capitalize">{details.preference.pace}</span>
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-foreground">Daily Time:</span>{' '}
+                                  <span>{details.preference.hoursPerDay}h/day</span>
+                                </div>
+                              </div>
+                              {!isSyllabusEmpty && (
+                                <div className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                                  Target: {completedToday} of {totalToday} topics learned today
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Daily Learning Targets */}
+                            {isSyllabusEmpty ? (
+                              <div className="text-center py-4 bg-muted/20 border border-dashed rounded-lg">
+                                <p className="text-sm text-muted-foreground">No syllabus details found for this skill. Try deleting and re-creating it with a structured roadmap.</p>
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                <h4 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse"></span>
+                                  Today's Daily Target
+                                </h4>
+                                
+                                {isTodayCompleted ? (
+                                  <div className="p-4 bg-indigo-50/50 dark:bg-indigo-950/10 border border-indigo-100/50 dark:border-indigo-900/30 rounded-xl flex flex-col items-center text-center gap-3">
+                                    <div>
+                                      <h5 className="font-bold text-indigo-900 dark:text-indigo-300 text-sm">All targets done for today! 🎉</h5>
+                                      <p className="text-xs text-indigo-600/80 dark:text-indigo-400/80 mt-0.5">You're doing amazing. Want to level up faster?</p>
+                                    </div>
+                                    <Button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleUnlockNextDay(item);
+                                      }}
+                                      size="sm" 
+                                      className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
+                                    >
+                                      Unlock Next Targets
+                                      <Zap className="w-3.5 h-3.5 ml-1.5" />
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <div className="grid grid-cols-1 gap-2">
+                                    {todayTargets.map((topic) => (
+                                      <div 
+                                        key={topic.id}
+                                        className="flex items-center space-x-3 p-3 bg-card border border-border/80 rounded-xl hover:bg-muted/40 transition-colors"
+                                      >
+                                        <input 
+                                          type="checkbox" 
+                                          checked={topic.completed}
+                                          onChange={(e) => {
+                                            e.stopPropagation();
+                                            handleToggleTopic(item, topic.id);
+                                          }}
+                                          className="w-4.5 h-4.5 text-indigo-600 border-border rounded focus:ring-indigo-500 cursor-pointer accent-indigo-600"
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm font-medium text-foreground truncate">{topic.topic}</p>
+                                          <p className="text-xs text-muted-foreground">Day {topic.dayNumber}</p>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Complete Syllabus Roadmap */}
+                            {!isSyllabusEmpty && (
+                              <div className="space-y-3 pt-3 border-t border-border/40">
+                                <h4 className="text-sm font-bold text-foreground">Syllabus Learning Roadmap</h4>
+                                <div className="max-h-48 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                                  {syllabus.map((topic, index) => {
+                                    const isCompleted = topic.completed;
+                                    const isActive = !isCompleted && topic.dayNumber <= visibleDayLimit;
+                                    
+                                    return (
+                                      <div key={topic.id} className="flex items-start gap-3 text-sm">
+                                        <div className="flex flex-col items-center mt-1">
+                                          <div className={`w-5 h-5 rounded-full flex items-center justify-center border text-xs font-semibold ${
+                                            isCompleted 
+                                              ? 'bg-emerald-100 border-emerald-200 text-emerald-700 dark:bg-emerald-950 dark:border-emerald-900 dark:text-emerald-400' 
+                                              : isActive 
+                                              ? 'bg-indigo-100 border-indigo-200 text-indigo-700 dark:bg-indigo-950 dark:border-indigo-900 dark:text-indigo-400'
+                                              : 'bg-muted border-border text-muted-foreground'
+                                          }`}>
+                                            {isCompleted ? (
+                                              <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                            ) : isActive ? (
+                                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse"></span>
+                                            ) : (
+                                              <Lock className="w-2.5 h-2.5 text-muted-foreground/60" />
+                                            )}
+                                          </div>
+                                          {index < syllabus.length - 1 && (
+                                            <div className="w-0.5 h-6 bg-border/50 mt-1"></div>
+                                          )}
+                                        </div>
+                                        <div className="flex-1 pb-2">
+                                          <p className={`text-sm font-medium ${isCompleted ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
+                                            {topic.topic}
+                                          </p>
+                                          <p className="text-xs text-muted-foreground">Day {topic.dayNumber}</p>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+
+                {completedSkills.length > 0 && (
+                  <div className="mt-6 pt-6 border-t border-border/60">
+                    <h4 className="text-sm font-bold text-muted-foreground mb-3">Completed Skills ({completedSkills.length})</h4>
+                    <div className="space-y-3">
+                      {completedSkills.map((item) => {
+                        const details = parseSkillDetails(item.category);
+                        return (
+                          <div key={item.id} className="flex items-center justify-between p-3 bg-muted/40 border border-border/40 rounded-xl">
+                            <div className="flex-1 min-w-0 mr-4">
+                              <div className="flex items-center space-x-2">
+                                <span className="font-semibold text-muted-foreground line-through truncate">{item.skill}</span>
+                                <Badge variant="secondary" className="text-[10px] py-0 bg-muted text-muted-foreground border-0">
+                                  {details.categoryName}
+                                </Badge>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Badge className="text-xs bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-100/50">
+                                Mastered 🏆
+                              </Badge>
+                              <Button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (confirm(`Are you sure you want to delete the completed skill "${item.skill}"?`)) {
+                                    deleteSkill(item.id);
+                                  }
+                                }}
+                                size="sm" 
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
+            );
+          })()
         )}
       </Card>
 

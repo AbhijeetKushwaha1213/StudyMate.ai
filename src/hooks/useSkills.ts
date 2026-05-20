@@ -1,6 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isLocalMode } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { localStore } from '@/utils/localStore';
+
+export interface SyllabusTopic {
+  id: string;
+  topic: string;
+  completed: boolean;
+  dayNumber: number;
+}
+
+export interface SkillPreference {
+  pace: 'slow' | 'medium' | 'fast';
+  hoursPerDay: number;
+}
+
+export interface ParsedSkillDetails {
+  categoryName: string;
+  preference: SkillPreference;
+  syllabus: SyllabusTopic[];
+  unlockedDays: number;
+}
 
 export interface Skill {
   id: string;
@@ -24,6 +44,37 @@ export interface UpdateSkillData {
   category?: string;
 }
 
+export const getSkillCategory = (categoryField: string): string => {
+  try {
+    if (categoryField && categoryField.startsWith('{')) {
+      const parsed = JSON.parse(categoryField);
+      return parsed.categoryName || 'General';
+    }
+  } catch (e) {}
+  return categoryField || 'General';
+};
+
+export const parseSkillDetails = (categoryField: string): ParsedSkillDetails => {
+  try {
+    if (categoryField && categoryField.startsWith('{')) {
+      const parsed = JSON.parse(categoryField);
+      return {
+        categoryName: parsed.categoryName || 'General',
+        preference: parsed.preference || { pace: 'medium', hoursPerDay: 2 },
+        syllabus: parsed.syllabus || [],
+        unlockedDays: parsed.unlockedDays || 0
+      };
+    }
+  } catch (e) {}
+  
+  return {
+    categoryName: categoryField || 'General',
+    preference: { pace: 'medium', hoursPerDay: 2 },
+    syllabus: [],
+    unlockedDays: 0
+  };
+};
+
 export const useSkills = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -36,6 +87,10 @@ export const useSkills = () => {
   } = useQuery({
     queryKey: ['skills'],
     queryFn: async () => {
+      if (isLocalMode()) {
+        return localStore.getSkills() as Skill[];
+      }
+
       const { data, error } = await supabase
         .from('user_skills')
         .select('*')
@@ -49,6 +104,10 @@ export const useSkills = () => {
   // Create skill
   const createSkillMutation = useMutation({
     mutationFn: async (skillData: CreateSkillData) => {
+      if (isLocalMode()) {
+        return localStore.saveSkill(skillData);
+      }
+
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('User not authenticated');
 
@@ -56,7 +115,6 @@ export const useSkills = () => {
         .from('user_skills')
         .insert([{ 
           user_id: user.user.id,
-          skill_name: skillData.skill, // Use skill_name for compatibility
           skill: skillData.skill,
           category: skillData.category,
           progress: skillData.progress || 0
@@ -86,6 +144,10 @@ export const useSkills = () => {
   // Update skill
   const updateSkillMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: UpdateSkillData }) => {
+      if (isLocalMode()) {
+        return localStore.updateSkill(id, updates);
+      }
+
       const { data, error } = await supabase
         .from('user_skills')
         .update(updates)
@@ -115,6 +177,10 @@ export const useSkills = () => {
   // Delete skill
   const deleteSkillMutation = useMutation({
     mutationFn: async (id: string) => {
+      if (isLocalMode()) {
+        return localStore.deleteSkill(id);
+      }
+
       const { error } = await supabase
         .from('user_skills')
         .delete()

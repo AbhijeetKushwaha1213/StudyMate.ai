@@ -14,3 +14,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     persistSession: true,
   },
 });
+
+export function isLocalMode(): boolean {
+  return localStorage.getItem('studymate-offline-session') !== null;
+}

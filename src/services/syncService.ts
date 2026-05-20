@@ -108,9 +108,9 @@ export class SyncService {
    */
   private async syncItem(item: SyncQueueItem): Promise<void> {
     // Import API modules dynamically to avoid circular dependencies
-    const { pageAPI } = await import('@/api/pageAPI');
-    const { blockAPI } = await import('@/api/blockAPI');
-    const { fileAPI } = await import('@/api/fileAPI');
+    const pageAPI = await import('@/api/pageAPI');
+    const blockAPI = await import('@/api/blockAPI');
+    const fileAPI = await import('@/api/fileAPI');
 
     switch (item.entity_type) {
       case 'page':

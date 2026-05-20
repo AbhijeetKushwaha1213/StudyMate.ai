@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { validateAIInput, sanitizeHtml, checkRateLimit, createSafeError } from '@/lib/security';
 import { useSecurityMonitor } from '@/hooks/useSecurityMonitor';
+import { geminiClient } from '@/utils/geminiClient';
 
 export interface ChatMessage {
   id: string;
@@ -60,22 +61,38 @@ export const useAIAssistant = () => {
         content: sanitizeHtml(msg.content)
       }));
 
-      const { data, error } = await supabase.functions.invoke('ai-assistant', {
-        body: {
+      let responseText = '';
+      try {
+        const { data, error } = await supabase.functions.invoke('ai-assistant', {
+          body: {
+            message: sanitizedMessage,
+            context,
+            userType: user?.userType || 'exam',
+            subject: subject ? sanitizeHtml(subject) : undefined
+          }
+        });
+
+        if (error) throw error;
+        responseText = data.response;
+      } catch (invokeError) {
+        console.warn('Supabase edge function invoke failed, falling back to direct Gemini API call:', invokeError);
+        const directRes = await geminiClient.generateContent({
           message: sanitizedMessage,
           context,
           userType: user?.userType || 'exam',
           subject: subject ? sanitizeHtml(subject) : undefined
+        });
+        if (directRes.error) {
+          throw new Error(`${directRes.error}: ${directRes.details || ''}`);
         }
-      });
-
-      if (error) throw error;
+        responseText = directRes.response;
+      }
 
       // Sanitize AI response before displaying
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: sanitizeHtml(data.response || 'No response received'),
+        content: sanitizeHtml(responseText || 'No response received'),
         timestamp: new Date(),
       };
 
@@ -126,8 +143,25 @@ export const useAIAssistant = () => {
       const validDifficulty = ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : 'medium';
       const validContentType = ['flashcards', 'mindmaps', 'quizzes', 'summaries'].includes(contentType) ? contentType : 'flashcards';
 
-      const { data, error } = await supabase.functions.invoke('ai-assistant', {
-        body: {
+      let responseText = '';
+      try {
+        const { data, error } = await supabase.functions.invoke('ai-assistant', {
+          body: {
+            message: sanitizedTopic,
+            contentType: validContentType,
+            topic: sanitizedTopic,
+            difficulty: validDifficulty,
+            count: validCount,
+            subject: subject ? sanitizeHtml(subject) : undefined,
+            userType: user?.userType || 'exam'
+          }
+        });
+
+        if (error) throw error;
+        responseText = data.response;
+      } catch (invokeError) {
+        console.warn('Supabase edge function invoke failed, falling back to direct Gemini API call:', invokeError);
+        const directRes = await geminiClient.generateContent({
           message: sanitizedTopic,
           contentType: validContentType,
           topic: sanitizedTopic,
@@ -135,21 +169,23 @@ export const useAIAssistant = () => {
           count: validCount,
           subject: subject ? sanitizeHtml(subject) : undefined,
           userType: user?.userType || 'exam'
+        });
+        if (directRes.error) {
+          throw new Error(`${directRes.error}: ${directRes.details || ''}`);
         }
-      });
-
-      if (error) throw error;
+        responseText = directRes.response;
+      }
 
       // Parse and sanitize the AI response
       let parsedContent;
       try {
-        const jsonMatch = data.response.match(/```json\n?(.*?)\n?```/s) || 
-                         data.response.match(/\{[\s\S]*\}/);
+        const jsonMatch = responseText.match(/```json\n?(.*?)\n?```/s) || 
+                         responseText.match(/\{[\s\S]*\}/);
         
         if (jsonMatch) {
           parsedContent = JSON.parse(jsonMatch[1] || jsonMatch[0]);
         } else {
-          parsedContent = JSON.parse(data.response);
+          parsedContent = JSON.parse(responseText);
         }
         
         // Sanitize all text content in the parsed response
@@ -157,7 +193,7 @@ export const useAIAssistant = () => {
         
       } catch (parseError) {
         // Fallback: create structured content from text response
-        parsedContent = createFallbackContent(validContentType, sanitizeHtml(data.response), sanitizedTopic, validDifficulty, validCount);
+        parsedContent = createFallbackContent(validContentType, sanitizeHtml(responseText), sanitizedTopic, validDifficulty, validCount);
       }
 
       return parsedContent;
@@ -178,6 +214,7 @@ export const useAIAssistant = () => {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sanitizeContentRecursively = (obj: any): any => {
     if (typeof obj === 'string') {
       return sanitizeHtml(obj);
@@ -186,6 +223,7 @@ export const useAIAssistant = () => {
       return obj.map(sanitizeContentRecursively);
     }
     if (obj && typeof obj === 'object') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sanitized: any = {};
       for (const [key, value] of Object.entries(obj)) {
         sanitized[key] = sanitizeContentRecursively(value);

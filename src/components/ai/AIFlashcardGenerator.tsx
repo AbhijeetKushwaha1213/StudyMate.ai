@@ -12,6 +12,7 @@ import { useStudyMaterials } from '@/hooks/useStudyMaterials';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { FileUploadComponent } from './FileUploadComponent';
+import { geminiClient } from '@/utils/geminiClient';
 
 export const AIFlashcardGenerator = () => {
   const { user } = useAuth();
@@ -46,35 +47,54 @@ export const AIFlashcardGenerator = () => {
       
       const subject = user?.userType === 'college' ? user?.branch : user?.examType;
       
-      // Use real AI generation via supabase
-      const { supabase } = await import('@/integrations/supabase/client');
-      const { data, error } = await supabase.functions.invoke('ai-assistant', {
-        body: {
+      let responseText = '';
+      
+      try {
+        const { supabase } = await import('@/integrations/supabase/client');
+        const { data, error } = await supabase.functions.invoke('ai-assistant', {
+          body: {
+            contentType: 'flashcards',
+            topic: topic || finalContent,
+            difficulty,
+            count: parseInt(count),
+            subject,
+            message: finalContent || topic
+          }
+        });
+
+        if (error) {
+          console.error('AIFlashcardGenerator: Supabase function error:', error);
+          throw new Error(error.message || 'Failed to generate flashcards');
+        }
+        
+        if (!data || !data.response) {
+          console.error('AIFlashcardGenerator: No response from AI');
+          throw new Error('No response received from AI service');
+        }
+        
+        responseText = data.response;
+      } catch (invokeError) {
+        console.warn('AIFlashcardGenerator: Supabase edge function failed, falling back to direct Gemini API call:', invokeError);
+        const directRes = await geminiClient.generateContent({
           contentType: 'flashcards',
           topic: topic || finalContent,
           difficulty,
           count: parseInt(count),
           subject,
           message: finalContent || topic
+        });
+        if (directRes.error) {
+          throw new Error(`${directRes.error}: ${directRes.details || ''}`);
         }
-      });
-
-      if (error) {
-        console.error('AIFlashcardGenerator: Supabase function error:', error);
-        throw new Error(error.message || 'Failed to generate flashcards');
+        responseText = directRes.response;
       }
       
-      if (!data || !data.response) {
-        console.error('AIFlashcardGenerator: No response from AI');
-        throw new Error('No response received from AI service');
-      }
-      
-      console.log('AIFlashcardGenerator: Raw AI response:', data);
+      console.log('AIFlashcardGenerator: Raw AI response:', responseText);
       
       let aiContent;
       try {
         // Try to parse the JSON response
-        aiContent = JSON.parse(data.response);
+        aiContent = JSON.parse(responseText);
         
         // Validate the response structure
         if (!aiContent.flashcards || !Array.isArray(aiContent.flashcards)) {
@@ -83,7 +103,7 @@ export const AIFlashcardGenerator = () => {
         }
       } catch (parseError) {
         console.error('AIFlashcardGenerator: Failed to parse AI response:', parseError);
-        console.error('AIFlashcardGenerator: Raw response was:', data.response);
+        console.error('AIFlashcardGenerator: Raw response was:', responseText);
         
         // Show the actual error to help debug
         toast({

@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Bot, User, Loader2, Maximize2, Minimize2, Save, History } from 'lucide-react';
+import { Send, Bot, User, Loader2, Maximize2, Minimize2, Save, History, Copy, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useChatHistory, ChatSession } from '@/hooks/useChatHistory';
@@ -46,7 +46,21 @@ export const AIChat = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [currentTopic, setCurrentTopic] = useState('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    toast({
+      title: "Copied!",
+      description: "Message content copied to clipboard.",
+      duration: 2000
+    });
+    setTimeout(() => {
+      setCopiedId(null);
+    }, 2000);
+  };
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -267,11 +281,26 @@ export const AIChat = ({
                       )}
                       <div className="flex-1">
                         <p className="text-sm whitespace-pre-wrap">{message.text}</p>
-                        <p className={`text-xs mt-1 ${
-                          message.sender === 'user' ? 'text-blue-200' : 'text-gray-500'
-                        }`}>
-                          {message.timestamp.toLocaleTimeString()}
-                        </p>
+                        <div className="flex items-center justify-between mt-1 space-x-4">
+                          <p className={`text-xs ${
+                            message.sender === 'user' ? 'text-blue-200' : 'text-gray-500'
+                          }`}>
+                            {message.timestamp.toLocaleTimeString()}
+                          </p>
+                          <button
+                            onClick={() => handleCopy(message.text, message.id)}
+                            className={`p-1 rounded hover:bg-black/10 transition-colors ${
+                              message.sender === 'user' ? 'text-blue-200 hover:text-white' : 'text-gray-400 hover:text-gray-600'
+                            }`}
+                            title="Copy message"
+                          >
+                            {copiedId === message.id ? (
+                              <Check className="w-3.5 h-3.5" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

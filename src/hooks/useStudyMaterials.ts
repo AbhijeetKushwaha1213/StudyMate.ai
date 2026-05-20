@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isLocalMode } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
+import { localStore } from '@/utils/localStore';
 
 export type MaterialType = 'flashcards' | 'mindmaps' | 'quizzes' | 'diagrams' | 'notes';
 
 export interface StudyMaterial {
   id: string;
   title: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content: any;
   type: MaterialType;
   topic: string;
@@ -35,6 +37,10 @@ export const useStudyMaterials = (type?: MaterialType) => {
     queryFn: async () => {
       if (!user?.user_id) return [];
       
+      if (isLocalMode()) {
+        return localStore.getStudyMaterials(type);
+      }
+
       let query = supabase
         .from('study_materials')
         .select('*')
@@ -63,6 +69,10 @@ export const useStudyMaterials = (type?: MaterialType) => {
       if (!user?.user_id) throw new Error('User not authenticated');
 
       console.log('Creating study material:', newMaterial);
+
+      if (isLocalMode()) {
+        return localStore.saveStudyMaterial(newMaterial);
+      }
 
       const { data, error } = await supabase
         .from('study_materials')
@@ -99,6 +109,10 @@ export const useStudyMaterials = (type?: MaterialType) => {
   // Update study material
   const updateMaterial = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<StudyMaterial> }) => {
+      if (isLocalMode()) {
+        return localStore.updateStudyMaterial(id, updates);
+      }
+
       const { data, error } = await supabase
         .from('study_materials')
         .update({
@@ -132,6 +146,10 @@ export const useStudyMaterials = (type?: MaterialType) => {
   // Delete study material
   const deleteMaterial = useMutation({
     mutationFn: async (id: string) => {
+      if (isLocalMode()) {
+        return localStore.deleteStudyMaterial(id);
+      }
+
       const { error } = await supabase
         .from('study_materials')
         .delete()
@@ -160,6 +178,10 @@ export const useStudyMaterials = (type?: MaterialType) => {
   const createMultipleMaterials = useMutation({
     mutationFn: async (materials: Omit<StudyMaterial, 'id' | 'created_at' | 'updated_at' | 'user_id'>[]) => {
       if (!user?.user_id) throw new Error('User not authenticated');
+
+      if (isLocalMode()) {
+        return localStore.saveMultipleStudyMaterials(materials);
+      }
 
       const materialsWithUserId = materials.map(material => ({
         ...material,

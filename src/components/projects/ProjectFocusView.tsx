@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Play, Pause, RotateCcw, Code, ExternalLink, Github, Timer, Brain, Send, Plus, Trash2, CheckCircle2, Circle, AlertCircle, TrendingUp, FileEdit } from "lucide-react";
+import { ArrowLeft, Play, Pause, RotateCcw, Code, ExternalLink, Github, Timer, Brain, Send, Plus, Trash2, CheckCircle2, Circle, AlertCircle, TrendingUp, FileEdit, Copy, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,8 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useSkills, parseSkillDetails } from "@/hooks/useSkills";
+import { useProjects } from "@/hooks/useProjects";
 
 interface ProjectFocusViewProps {
+  projectId?: string;
   projectName?: string;
   projectType?: string;
   deadline?: string;
@@ -47,6 +51,7 @@ interface LeetCodeProblem {
 }
 
 export default function ProjectFocusView({ 
+  projectId,
   projectName = "React Portfolio Website", 
   projectType = "Frontend Project", 
   deadline = "2 days",
@@ -73,20 +78,93 @@ export default function ProjectFocusView({
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [resources, setResources] = useState<Resource[]>([
     { id: 1, title: "React Docs", url: "https://reactjs.org/docs", type: "documentation" },
     { id: 2, title: "Tailwind CSS Guide", url: "https://tailwindcss.com/docs", type: "documentation" }
   ]);
   const [newResource, setNewResource] = useState({ title: "", url: "", type: "documentation" as Resource['type'] });
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, title: "Set up project structure", completed: true, priority: 'high' },
-    { id: 2, title: "Design homepage layout", completed: true, priority: 'high' },
-    { id: 3, title: "Implement navigation component", completed: false, priority: 'high' },
-    { id: 4, title: "Add responsive design", completed: false, priority: 'medium' },
-    { id: 5, title: "Create contact form", completed: false, priority: 'medium' },
-    { id: 6, title: "Optimize images", completed: false, priority: 'low' },
-  ]);
+  
+  const [tasks, setTasks] = useState<any[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+
+  const { skills, updateSkill } = useSkills();
+  const { projects, updateProject } = useProjects();
+
+  const isSkill = projectId?.startsWith('skill-');
+  const actualId = isSkill ? projectId.replace('skill-', '') : projectId;
+
+  const parseProjectDetails = (description: string) => {
+    try {
+      if (description && (description.startsWith('{') || description.startsWith('['))) {
+        const parsed = JSON.parse(description);
+        return {
+          descriptionText: parsed.descriptionText || '',
+          tasks: parsed.tasks || []
+        };
+      }
+    } catch (e) {}
+    return {
+      descriptionText: description || '',
+      tasks: []
+    };
+  };
+
+  useEffect(() => {
+    if (!projectId) return;
+    if (loadedId === projectId) return;
+
+    if (isSkill) {
+      const skill = skills.find(s => s.id === actualId);
+      if (skill) {
+        const details = parseSkillDetails(skill.category);
+        const mappedTasks = (details.syllabus || []).map((t: any) => ({
+          id: t.id,
+          title: t.topic,
+          completed: !!t.completed,
+          priority: 'medium' as const,
+          dayNumber: t.dayNumber
+        }));
+        setTasks(mappedTasks);
+        setLoadedId(projectId);
+      }
+    } else {
+      const project = projects.find(p => p.id === actualId);
+      if (project) {
+        const details = parseProjectDetails(project.description || '');
+        if (details.tasks.length === 0 && (!project.description || !project.description.startsWith('{'))) {
+          const defaultTasks = project.type.toLowerCase() === 'coding' ? [
+            { id: '1', title: "Set up project structure", completed: false, priority: 'high' as const },
+            { id: '2', title: "Design homepage layout", completed: false, priority: 'high' as const },
+            { id: '3', title: "Implement navigation component", completed: false, priority: 'medium' as const },
+            { id: '4', title: "Add responsive design", completed: false, priority: 'medium' as const },
+            { id: '5', title: "Deploy to staging", completed: false, priority: 'low' as const },
+          ] : [
+            { id: '1', title: "Research topic literature", completed: false, priority: 'high' as const },
+            { id: '2', title: "Create paper outline", completed: false, priority: 'high' as const },
+            { id: '3', title: "Write introduction section", completed: false, priority: 'medium' as const },
+            { id: '4', title: "Compile references", completed: false, priority: 'low' as const },
+          ];
+          setTasks(defaultTasks);
+          const updatedDesc = JSON.stringify({
+            descriptionText: project.description || '',
+            tasks: defaultTasks
+          });
+          updateProject({ id: actualId, updates: { description: updatedDesc } });
+        } else {
+          setTasks(details.tasks.map(t => ({
+            id: t.id,
+            title: t.title,
+            completed: t.completed,
+            priority: t.priority
+          })));
+        }
+        setLoadedId(projectId);
+      }
+    }
+  }, [projectId, skills, projects, isSkill, actualId, loadedId]);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateText, setUpdateText] = useState('');
@@ -182,29 +260,77 @@ export default function ProjectFocusView({
     }
   };
 
-  const sendMessage = () => {
-    if (!inputMessage.trim()) return;
+  const sendMessage = async () => {
+    if (!inputMessage.trim() || isTyping) return;
 
+    const userMsgText = inputMessage.trim();
     const userMessage: Message = {
       id: Date.now().toString(),
-      text: inputMessage,
+      text: userMsgText,
       sender: 'user',
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInputMessage('');
+    setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-assistant', {
+        body: {
+          message: userMsgText,
+          context: `project focus bot for ${projectName} (${projectType})`,
+          conversationHistory: updatedMessages.slice(-10).map(msg => ({
+            role: msg.sender === 'user' ? 'user' : 'assistant',
+            content: msg.text
+          }))
+        }
+      });
+
+      if (error) {
+        console.error('AI Assistant Error:', error);
+        throw error;
+      }
+
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: "I understand you're working on a React Portfolio Website. Let me help you with that! Feel free to ask about React concepts, debugging, or best practices.",
+        text: data.response || "I'm sorry, I couldn't process your request right now.",
         sender: 'ai',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiResponse]);
-    }, 1000);
+    } catch (error) {
+      console.error('Error calling AI assistant:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "I'm sorry, I'm having trouble connecting right now. Please try again later.",
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      
+      toast({
+        title: "Connection Error",
+        description: "Unable to reach AI assistant. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    toast({
+      title: "Copied!",
+      description: "Message content copied to clipboard.",
+      duration: 2000
+    });
+    setTimeout(() => {
+      setCopiedId(null);
+    }, 2000);
   };
 
   const addResource = () => {
@@ -231,27 +357,205 @@ export default function ProjectFocusView({
     window.open("vscode://file/your-project-path", "_blank");
   };
 
-  const toggleTask = (taskId: number) => {
-    setTasks(prev => prev.map(task => 
-      task.id === taskId ? { ...task, completed: !task.completed } : task
-    ));
+  const toggleTask = (taskId: string | number) => {
+    if (isSkill) {
+      const skill = skills.find(s => s.id === actualId);
+      if (!skill) return;
+      
+      const details = parseSkillDetails(skill.category);
+      const updatedSyllabus = details.syllabus.map(t => {
+        if (t.id === taskId) {
+          return { ...t, completed: !t.completed };
+        }
+        return t;
+      });
+
+      const completedCount = updatedSyllabus.filter(t => t.completed).length;
+      const totalCount = updatedSyllabus.length;
+      const newProgress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+      // Adjust unlockedDays if completed day changed
+      const firstUncompletedBefore = details.syllabus.find(t => !t.completed);
+      const activeDayBefore = firstUncompletedBefore ? firstUncompletedBefore.dayNumber : 1;
+
+      const firstUncompletedAfter = updatedSyllabus.find(t => !t.completed);
+      const activeDayAfter = firstUncompletedAfter ? firstUncompletedAfter.dayNumber : 1;
+
+      let newUnlockedDays = details.unlockedDays || 0;
+      if (activeDayAfter > activeDayBefore) {
+        newUnlockedDays = Math.max(0, newUnlockedDays - (activeDayAfter - activeDayBefore));
+      }
+
+      const updatedCategory = {
+        ...details,
+        syllabus: updatedSyllabus,
+        unlockedDays: newUnlockedDays
+      };
+
+      updateSkill({
+        id: actualId,
+        updates: {
+          progress: newProgress,
+          category: JSON.stringify(updatedCategory)
+        }
+      });
+      
+      // Update local task state immediately for snappy UI
+      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, completed: !t.completed } : t));
+    } else {
+      const project = projects.find(p => p.id === actualId);
+      if (!project) return;
+
+      const details = parseProjectDetails(project.description || '');
+      const updatedTasks = details.tasks.map(t => 
+        t.id === taskId ? { ...t, completed: !t.completed } : t
+      );
+      
+      const completedCount = updatedTasks.filter(t => t.completed).length;
+      const newProgress = updatedTasks.length > 0 ? Math.round((completedCount / updatedTasks.length) * 100) : 0;
+
+      const updatedDesc = JSON.stringify({
+        descriptionText: details.descriptionText,
+        tasks: updatedTasks
+      });
+
+      updateProject({
+        id: actualId,
+        updates: {
+          description: updatedDesc,
+          progress: newProgress
+        }
+      });
+
+      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, completed: !t.completed } : t));
+    }
   };
 
   const addTask = () => {
-    if (newTaskTitle.trim()) {
-      const newTask: Task = {
-        id: Date.now(),
-        title: newTaskTitle.trim(),
+    if (!newTaskTitle.trim()) return;
+
+    if (isSkill) {
+      const skill = skills.find(s => s.id === actualId);
+      if (!skill) return;
+
+      const details = parseSkillDetails(skill.category);
+      const maxDay = details.syllabus.length > 0 ? Math.max(...details.syllabus.map(t => t.dayNumber)) : 1;
+      
+      const newTopic = {
+        id: Date.now().toString(),
+        topic: newTaskTitle.trim(),
+        completed: false,
+        dayNumber: maxDay
+      };
+
+      const updatedSyllabus = [...details.syllabus, newTopic];
+      const completedCount = updatedSyllabus.filter(t => t.completed).length;
+      const totalCount = updatedSyllabus.length;
+      const newProgress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+      const updatedCategory = {
+        ...details,
+        syllabus: updatedSyllabus
+      };
+
+      updateSkill({
+        id: actualId,
+        updates: {
+          progress: newProgress,
+          category: JSON.stringify(updatedCategory)
+        }
+      });
+
+      setTasks(prev => [...prev, {
+        id: newTopic.id,
+        title: newTopic.topic,
         completed: false,
         priority: 'medium'
+      }]);
+      setNewTaskTitle('');
+    } else {
+      const project = projects.find(p => p.id === actualId);
+      if (!project) return;
+
+      const details = parseProjectDetails(project.description || '');
+      const newTaskObj = {
+        id: Date.now().toString(),
+        title: newTaskTitle.trim(),
+        completed: false,
+        priority: 'medium' as const
       };
-      setTasks(prev => [...prev, newTask]);
+
+      const updatedTasks = [...details.tasks, newTaskObj];
+      const completedCount = updatedTasks.filter(t => t.completed).length;
+      const newProgress = updatedTasks.length > 0 ? Math.round((completedCount / updatedTasks.length) * 100) : 0;
+
+      const updatedDesc = JSON.stringify({
+        descriptionText: details.descriptionText,
+        tasks: updatedTasks
+      });
+
+      updateProject({
+        id: actualId,
+        updates: {
+          description: updatedDesc,
+          progress: newProgress
+        }
+      });
+
+      setTasks(prev => [...prev, newTaskObj]);
       setNewTaskTitle('');
     }
   };
 
-  const deleteTask = (taskId: number) => {
-    setTasks(prev => prev.filter(task => task.id !== taskId));
+  const deleteTask = (taskId: string | number) => {
+    if (isSkill) {
+      const skill = skills.find(s => s.id === actualId);
+      if (!skill) return;
+
+      const details = parseSkillDetails(skill.category);
+      const updatedSyllabus = details.syllabus.filter(t => t.id !== taskId);
+      const completedCount = updatedSyllabus.filter(t => t.completed).length;
+      const totalCount = updatedSyllabus.length;
+      const newProgress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+      const updatedCategory = {
+        ...details,
+        syllabus: updatedSyllabus
+      };
+
+      updateSkill({
+        id: actualId,
+        updates: {
+          progress: newProgress,
+          category: JSON.stringify(updatedCategory)
+        }
+      });
+
+      setTasks(prev => prev.filter(t => t.id !== taskId));
+    } else {
+      const project = projects.find(p => p.id === actualId);
+      if (!project) return;
+
+      const details = parseProjectDetails(project.description || '');
+      const updatedTasks = details.tasks.filter(t => t.id !== taskId);
+      const completedCount = updatedTasks.filter(t => t.completed).length;
+      const newProgress = updatedTasks.length > 0 ? Math.round((completedCount / updatedTasks.length) * 100) : 0;
+
+      const updatedDesc = JSON.stringify({
+        descriptionText: details.descriptionText,
+        tasks: updatedTasks
+      });
+
+      updateProject({
+        id: actualId,
+        updates: {
+          description: updatedDesc,
+          progress: newProgress
+        }
+      });
+
+      setTasks(prev => prev.filter(t => t.id !== taskId));
+    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -734,15 +1038,35 @@ export default function ProjectFocusView({
                     {messages.map((message) => (
                       <div
                         key={message.id}
-                        className={`p-2 rounded text-sm ${
+                        className={`p-2 rounded text-sm group relative ${
                           message.sender === 'user'
                             ? 'bg-blue-600 text-white ml-8'
                             : 'bg-gray-700 text-gray-300 mr-8'
                         }`}
                       >
-                        <div className="whitespace-pre-wrap">{message.text}</div>
+                        <div className="whitespace-pre-wrap pr-6">{message.text}</div>
+                        <button
+                          onClick={() => handleCopy(message.text, message.id)}
+                          className="absolute bottom-1 right-1 p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-black/20 text-gray-400 hover:text-white transition-all"
+                          title="Copy message"
+                        >
+                          {copiedId === message.id ? (
+                            <Check className="w-3.5 h-3.5" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
                       </div>
                     ))}
+                    {isTyping && (
+                      <div className="p-2 rounded text-sm bg-gray-700 text-gray-300 mr-8">
+                        <div className="flex space-x-1 py-1">
+                          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </ScrollArea>
 
@@ -753,11 +1077,13 @@ export default function ProjectFocusView({
                     onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                     placeholder="Ask AI anything..."
                     className="bg-gray-900 border-gray-600 text-white placeholder-gray-400"
+                    disabled={isTyping}
                   />
                   <Button 
                     onClick={sendMessage}
                     size="sm"
                     className="bg-blue-600 hover:bg-blue-700"
+                    disabled={!inputMessage.trim() || isTyping}
                   >
                     <Send className="w-4 h-4" />
                   </Button>
