@@ -35,7 +35,6 @@ interface AuthContextType {
   updateUserType: (type: 'exam' | 'college', details: any) => Promise<void>;
   updateUser: (updatedUser: UserProfile) => void;
   refetch: () => Promise<void>;
-  signInOffline: (name: string, userType?: 'exam' | 'college') => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -364,35 +363,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signInOffline = async (name: string, userType: 'exam' | 'college' = 'exam') => {
-    setIsLoading(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      
-      const mockUser: UserProfile = {
-        id: 'local-dev-user-id',
-        user_id: 'local-dev-user-id',
-        name: name || 'Offline Scholar',
-        email: 'offline@studymate.local',
-        userType: userType,
-        study_streak: 3,
-        total_study_hours: 12.5,
-        current_level: 2,
-        experience_points: 450,
-      };
-      
-      setUser(mockUser);
-      localStorage.setItem('studymate-offline-session', JSON.stringify(mockUser));
-      toast({
-        title: "Signed In (Local Offline Mode)",
-        description: "You are signed in locally. All data will be saved on your device.",
-      });
-    } catch (error) {
-      console.error('Offline sign in error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
 
   const updateUser = (updatedUser: UserProfile) => {
     setUser(updatedUser);
@@ -537,7 +508,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signIn,
       signInWithGoogle,
       signUp,
-      signInOffline,
       signOut,
       updateUserType,
       updateUser,

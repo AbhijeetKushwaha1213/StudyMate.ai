@@ -16,7 +16,7 @@ export const SignInPage = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
-  const { signIn, signInWithGoogle, signUp, signInOffline } = useAuth();
+  const { signIn, signInWithGoogle, signUp } = useAuth();
   const { toast } = useToast();
 
   const validateEmail = (email: string) => {
@@ -92,16 +92,7 @@ export const SignInPage = () => {
     }
   };
 
-  const handleOfflineSignIn = async () => {
-    setIsLoading(true);
-    try {
-      await signInOffline(name || 'Offline Scholar');
-    } catch (error) {
-      console.error('Offline sign in error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -200,19 +191,7 @@ export const SignInPage = () => {
                   </svg>
                   Continue with Google
                 </Button>
-                <div className="relative my-4">
-                  <Separator />
-                </div>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="w-full bg-secondary/80 hover:bg-secondary text-secondary-foreground border border-border"
-                  onClick={handleOfflineSignIn}
-                  disabled={isLoading}
-                >
-                  Use Local Offline Mode (Dev Bypass)
-                </Button>
-                <p className="text-xs text-muted-foreground text-center mt-2">
+                <p className="text-xs text-muted-foreground text-center mt-4">
                   Google sign-in is only available for existing users
                 </p>
               </form>
@@ -279,16 +258,7 @@ export const SignInPage = () => {
                   {isLoading ? 'Creating Account...' : 'Create Account'}
                 </Button>
 
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="w-full mt-2"
-                  onClick={handleOfflineSignIn}
-                  disabled={isLoading}
-                >
-                  Use Local Offline Mode (Dev Bypass)
-                </Button>
-                <p className="text-xs text-muted-foreground text-center">
+                <p className="text-xs text-muted-foreground text-center mt-4">
                   After signing up, you can link your Google account for faster login
                 </p>
               </form>
