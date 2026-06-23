@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS public.study_materials (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
-);
+); 
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_study_materials_user_id ON public.study_materials(user_id);
