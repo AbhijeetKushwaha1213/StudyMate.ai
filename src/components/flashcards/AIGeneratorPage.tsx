@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Wand2, Library } from 'lucide-react';
-import { AIStudyMaterialGenerator } from '../ai/AIStudyMaterialGenerator';
+import { PremiumAIGenerator } from '../ai/PremiumAIGenerator';
+import '../ai/animations.css';
 import { FlashcardVault } from './FlashcardVault';
 
 export const AIGeneratorPage = () => {
@@ -31,7 +32,7 @@ export const AIGeneratorPage = () => {
         </TabsList>
 
         <TabsContent value="generate" className="mt-6">
-          <AIStudyMaterialGenerator />
+          <PremiumAIGenerator />
         </TabsContent>
 
         <TabsContent value="vault" className="mt-6">

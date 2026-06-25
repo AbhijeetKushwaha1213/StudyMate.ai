@@ -250,34 +250,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Store a flag to indicate Google OAuth is in progress
       sessionStorage.setItem('google_oauth_initiated', 'true');
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      const redirectUrl = getAuthRedirectUrl();
+      console.log('Google OAuth redirect URL:', redirectUrl);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: getAuthRedirectUrl(),
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent',
+            prompt: 'select_account',
           },
         },
       });
 
       if (error) {
         sessionStorage.removeItem('google_oauth_initiated');
+        console.error('Google OAuth error:', error);
         toast({
           title: "Google Sign In Failed",
-          description: error.message,
+          description: error.message || "Unable to initiate Google sign in. Please try again.",
           variant: "destructive",
         });
         throw error;
       }
+      
+      // OAuth redirect will happen automatically
+      console.log('Google OAuth initiated successfully');
     } catch (error) {
       sessionStorage.removeItem('google_oauth_initiated');
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Google sign in error:', error);
-      }
+      console.error('Google sign in error:', error);
+      toast({
+        title: "Google Sign In Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
       throw error;
     } finally {
-      setIsLoading(false);
+      // Don't set loading to false here as the redirect is happening
+      // setIsLoading(false);
     }
   };
 

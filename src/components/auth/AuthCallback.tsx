@@ -36,81 +36,134 @@ export const AuthCallback = () => {
     const errorMessage = getAuthErrorMessage();
 
     if (errorMessage) {
+      console.error('OAuth error in URL:', errorMessage);
       toast({
         title: 'Google Sign In Failed',
         description: errorMessage,
         variant: 'destructive',
       });
+      sessionStorage.removeItem('google_oauth_initiated');
       navigate('/auth', { replace: true });
       return;
     }
 
     const resolveSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
-
-      if (!isActive) {
-        return;
-      }
-
-      if (error) {
-        toast({
-          title: 'Google Sign In Failed',
-          description: error.message,
-          variant: 'destructive',
-        });
-        navigate('/auth', { replace: true });
-        return;
-      }
-
-      if (data.session) {
-        // Check if this was a Google OAuth login
-        const isGoogleOAuth = sessionStorage.getItem('google_oauth_initiated') === 'true';
+      try {
+        console.log('Resolving OAuth session...');
         
-        if (isGoogleOAuth) {
-          // Check if user profile exists (meaning they signed up before)
-          const { data: profile, error: profileError } = await supabase
-            .from('user_profiles')
-            .select('user_id')
-            .eq('user_id', data.session.user.id)
-            .single();
-
-          if (profileError || !profile) {
-            // New user trying to use Google OAuth - reject them
-            console.log('New user attempted Google OAuth - rejecting');
-            
-            // Sign them out
-            await supabase.auth.signOut();
-            sessionStorage.removeItem('google_oauth_initiated');
-            
-            toast({
-              title: 'Google Sign In Not Allowed',
-              description: 'Please sign up with email and password first. After creating an account, you can link your Google account.',
-              variant: 'destructive',
-            });
-            navigate('/auth', { replace: true });
-            return;
-          }
-        }
+        // Wait a bit for Supabase to process the OAuth callback
+        await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Clear the flag
-        sessionStorage.removeItem('google_oauth_initiated');
-        navigate('/', { replace: true });
-        return;
-      }
+        const { data, error } = await supabase.auth.getSession();
 
-      fallbackTimer = window.setTimeout(() => {
         if (!isActive) {
           return;
         }
 
-        sessionStorage.removeItem('google_oauth_initiated');
-        toast({
-          title: 'Google Sign In Incomplete',
-          description: 'No session was created after Google redirected back. Check your Supabase Google provider and redirect URL settings.',
-          variant: 'destructive',
-        });
-        navigate('/auth', { replace: true });
-      }, 1500);
+        if (error) {
+          console.error('Error getting session:', error);
+          toast({
+            title: 'Google Sign In Failed',
+            description: error.message,
+            variant: 'destructive',
+          });
+          sessionStorage.removeItem('google_oauth_initiated');
+          navigate('/auth', { replace: true });
+          return;
+        }
+
+        if (data.session) {
+          console.log('Session established:', data.session.user.email);
+          
+          // Check if this was a Google OAuth login
+          const isGoogleOAuth = sessionStorage.getItem('google_oauth_initiated') === 'true';
+          
+          if (isGoogleOAuth) {
+            console.log('Processing Google OAuth login...');
+            
+            // Check if user profile exists
+            const { data: profile, error: profileError } = await supabase
+              .from('user_profiles')
+              .select('user_id, name, email')
+              .eq('user_id', data.session.user.id)
+              .single();
+
+            if (profileError && profileError.code !== 'PGRST116') {
+              console.error('Error checking profile:', profileError);
+            }
+
+            if (!profile) {
+              console.log('New Google user - creating profile...');
+              
+              // Create a basic profile for new Google OAuth users
+              const userName = data.session.user.user_metadata?.full_name || 
+                              data.session.user.user_metadata?.name || 
+                              data.session.user.email?.split('@')[0] || 
+                              'User';
+              
+              const { error: insertError } = await supabase
+                .from('user_profiles')
+                .insert({
+                  user_id: data.session.user.id,
+                  email: data.session.user.email!,
+                  name: userName,
+                  user_type: 'exam', // Default, user can update later
+                  study_streak: 0,
+                  total_study_hours: 0,
+                  current_level: 1,
+                  experience_points: 0,
+                });
+
+              if (insertError) {
+                console.error('Error creating profile:', insertError);
+                // Continue anyway - profile will be created later if needed
+              } else {
+                console.log('Profile created successfully for new Google user');
+              }
+            } else {
+              console.log('Existing user profile found');
+            }
+          }
+          
+          // Clear the flag
+          sessionStorage.removeItem('google_oauth_initiated');
+          
+          toast({
+            title: 'Welcome!',
+            description: 'Successfully signed in with Google.',
+          });
+          
+          navigate('/', { replace: true });
+          return;
+        }
+
+        // Set a fallback timer if session is not established
+        fallbackTimer = window.setTimeout(() => {
+          if (!isActive) {
+            return;
+          }
+
+          console.warn('OAuth callback timeout - no session created');
+          sessionStorage.removeItem('google_oauth_initiated');
+          toast({
+            title: 'Google Sign In Incomplete',
+            description: 'No session was created. Please check your internet connection and try again.',
+            variant: 'destructive',
+          });
+          navigate('/auth', { replace: true });
+        }, 2000);
+      } catch (err) {
+        console.error('Error in resolveSession:', err);
+        if (isActive) {
+          sessionStorage.removeItem('google_oauth_initiated');
+          toast({
+            title: 'Google Sign In Failed',
+            description: 'An unexpected error occurred. Please try again.',
+            variant: 'destructive',
+          });
+          navigate('/auth', { replace: true });
+        }
+      }
     };
 
     resolveSession();
@@ -122,7 +175,10 @@ export const AuthCallback = () => {
         return;
       }
 
+      console.log('Auth state changed:', event);
+      
       if (event === 'SIGNED_IN' && session) {
+        sessionStorage.removeItem('google_oauth_initiated');
         navigate('/', { replace: true });
       }
     });
