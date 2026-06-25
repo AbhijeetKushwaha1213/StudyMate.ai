@@ -192,8 +192,8 @@ export const NotificationCenter = ({ onNavigate }: NotificationCenterProps) => {
     <div className="space-y-6 pb-20">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-          <p className="text-gray-600">Stay updated with your learning progress</p>
+          <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
+          <p className="text-muted-foreground">Stay updated with your learning progress</p>
         </div>
         <div className="flex items-center space-x-2">
           <Badge variant="secondary">
@@ -241,13 +241,13 @@ export const NotificationCenter = ({ onNavigate }: NotificationCenterProps) => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2">
-                      <h3 className="font-semibold text-gray-900">{notification.title}</h3>
+                      <h3 className="font-semibold text-foreground">{notification.title}</h3>
                       {!notification.is_read && (
                         <div className="w-2 h-2 bg-indigo-600 rounded-full"></div>
                       )}
                     </div>
-                    <p className="text-gray-700 mt-1">{notification.message}</p>
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-foreground mt-1">{notification.message}</p>
+                    <p className="text-xs text-muted-foreground mt-2">
                       {new Date(notification.created_at).toLocaleString()}
                     </p>
                   </div>
@@ -276,11 +276,11 @@ export const NotificationCenter = ({ onNavigate }: NotificationCenterProps) => {
         </div>
       ) : (
         <Card className="p-8 text-center">
-          <Bell className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <Bell className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">
             {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
           </h3>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             {filter === 'unread' 
               ? 'All caught up! Check back later for updates.'
               : 'Notifications about your study progress will appear here.'

@@ -311,9 +311,9 @@ export const StudySessionPage = ({
 
   const getNoteColor = (type: SessionNote['type']) => {
     switch (type) {
-      case 'understanding': return 'bg-green-50 border-green-200';
-      case 'difficulty': return 'bg-red-50 border-red-200';
-      case 'important': return 'bg-yellow-50 border-yellow-200';
+      case 'understanding': return 'bg-success/10 border-success/30';
+      case 'difficulty': return 'bg-destructive/10 border-destructive/30';
+      case 'important': return 'bg-warning/10 border-warning/30';
     }
   };
 
@@ -326,8 +326,8 @@ export const StudySessionPage = ({
             <Button variant="ghost" onClick={onBack} className="mb-3 text-muted-foreground hover:text-foreground">
               ← Back to Dashboard
             </Button>
-            <div className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              <h1 className="text-4xl font-bold mb-1">Welcome to {subject}</h1>
+            <div>
+              <h1 className="text-4xl font-bold mb-1 text-gradient">Welcome to {subject}</h1>
               <p className="text-xl font-medium text-muted-foreground">{topic} Study Session</p>
             </div>
           </div>
@@ -504,7 +504,7 @@ export const StudySessionPage = ({
             {/* Modern Resources Section */}
             <Card className="p-8 bg-gradient-to-br from-card to-muted/20 border-0 shadow-xl rounded-3xl">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <h3 className="text-2xl font-bold text-gradient">
                   📚 Session Resources
                 </h3>
                 <div className="flex space-x-3">
@@ -580,7 +580,7 @@ export const StudySessionPage = ({
 
             {/* Modern Notes Section */}
             <Card className="p-8 bg-gradient-to-br from-card to-muted/20 border-0 shadow-xl rounded-3xl">
-              <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <h3 className="text-2xl font-bold mb-6 text-gradient">
                 📝 Session Notes
               </h3>
               
@@ -638,7 +638,7 @@ export const StudySessionPage = ({
             {/* Floating AI Assistant */}
             <Card className="p-6 bg-gradient-to-br from-card to-muted/20 border-0 shadow-xl rounded-3xl h-96">
               <div className="flex items-center justify-between mb-6">
-                <h4 className="text-xl font-bold flex items-center bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <h4 className="text-xl font-bold flex items-center text-gradient">
                   <div className="p-2 bg-primary/20 rounded-full mr-3">
                     <Brain className="w-5 h-5 text-primary" />
                   </div>
@@ -682,7 +682,7 @@ export const StudySessionPage = ({
 
             {/* Live Metrics with Bold Numbers */}
             <Card className="p-6 bg-gradient-to-br from-card to-muted/20 border-0 shadow-xl rounded-3xl">
-              <h4 className="text-xl font-bold mb-6 flex items-center bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <h4 className="text-xl font-bold mb-6 flex items-center text-gradient">
                 <div className="p-2 bg-green-500/20 rounded-full mr-3">
                   <TrendingUp className="w-5 h-5 text-green-600" />
                 </div>
@@ -714,7 +714,7 @@ export const StudySessionPage = ({
 
             {/* Session Progress with Enhanced Bars */}
             <Card className="p-6 bg-gradient-to-br from-card to-muted/20 border-0 shadow-xl rounded-3xl">
-              <h4 className="text-xl font-bold mb-6 flex items-center bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <h4 className="text-xl font-bold mb-6 flex items-center text-gradient">
                 <div className="p-2 bg-blue-500/20 rounded-full mr-3">
                   <CheckCircle className="w-5 h-5 text-blue-600" />
                 </div>

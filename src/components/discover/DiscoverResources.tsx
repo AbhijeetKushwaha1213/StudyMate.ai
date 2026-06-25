@@ -311,8 +311,8 @@ export const DiscoverResources = ({ onNavigate }: DiscoverResourcesProps) => {
   return (
     <div className="space-y-6 pb-20">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Discover Resources</h1>
-        <p className="text-gray-600">Find projects, learn new skills, and explore ideas</p>
+        <h1 className="text-2xl font-bold text-foreground mb-2">Discover Resources</h1>
+        <p className="text-muted-foreground">Find projects, learn new skills, and explore ideas</p>
       </div>
 
       <Card className="p-6">
@@ -339,7 +339,7 @@ export const DiscoverResources = ({ onNavigate }: DiscoverResourcesProps) => {
         
         {skills.length > 0 && (
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-700">Your Skills:</h3>
+            <h3 className="text-sm font-medium text-foreground">Your Skills:</h3>
             <div className="flex flex-wrap gap-2">
               {skills.map((skill) => (
                 <div key={skill.id} className="flex items-center gap-1">
@@ -385,7 +385,7 @@ export const DiscoverResources = ({ onNavigate }: DiscoverResourcesProps) => {
 
         {projects.length > 0 && (
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-700">Your Projects:</h3>
+            <h3 className="text-sm font-medium text-foreground">Your Projects:</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {projects.map((project) => (
                 <Card key={project.id} className="p-3">
@@ -393,7 +393,7 @@ export const DiscoverResources = ({ onNavigate }: DiscoverResourcesProps) => {
                     <div className="flex-1">
                       <h4 className="font-medium text-sm">{project.title}</h4>
                       {project.description && (
-                        <p className="text-xs text-gray-600 mt-1">{project.description}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{project.description}</p>
                       )}
                       <Badge variant="outline" className="mt-2 text-xs">
                         {project.status}
@@ -440,8 +440,8 @@ export const DiscoverResources = ({ onNavigate }: DiscoverResourcesProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             {resources.map((resource, index) => (
               <Card key={index} className="p-4 hover:shadow-md transition-shadow">
-                <h3 className="font-semibold text-gray-900 mb-2">{resource.title}</h3>
-                <p className="text-gray-600 text-sm mb-3">{resource.description}</p>
+                <h3 className="font-semibold text-foreground mb-2">{resource.title}</h3>
+                <p className="text-muted-foreground text-sm mb-3">{resource.description}</p>
                 <div className="flex flex-wrap gap-2 mb-3">
                   <Badge variant="outline">{resource.difficulty}</Badge>
                   <Badge variant="secondary">{resource.type}</Badge>
@@ -463,22 +463,22 @@ export const DiscoverResources = ({ onNavigate }: DiscoverResourcesProps) => {
         <Card className="p-4 text-center hover:shadow-md transition-shadow cursor-pointer">
           <Youtube className="w-8 h-8 text-red-600 mx-auto mb-2" />
           <h3 className="font-semibold mb-1">YouTube Playlists</h3>
-          <p className="text-sm text-gray-600">Curated learning content</p>
-          <ExternalLink className="w-4 h-4 mt-2 mx-auto text-gray-400" />
+          <p className="text-sm text-muted-foreground">Curated learning content</p>
+          <ExternalLink className="w-4 h-4 mt-2 mx-auto text-muted-foreground" />
         </Card>
 
         <Card className="p-4 text-center hover:shadow-md transition-shadow cursor-pointer">
-          <Github className="w-8 h-8 text-gray-800 mx-auto mb-2" />
+          <Github className="w-8 h-8 text-foreground mx-auto mb-2" />
           <h3 className="font-semibold mb-1">GitHub Repos</h3>
-          <p className="text-sm text-gray-600">Trending projects</p>
-          <ExternalLink className="w-4 h-4 mt-2 mx-auto text-gray-400" />
+          <p className="text-sm text-muted-foreground">Trending projects</p>
+          <ExternalLink className="w-4 h-4 mt-2 mx-auto text-muted-foreground" />
         </Card>
 
         <Card className="p-4 text-center hover:shadow-md transition-shadow cursor-pointer">
           <Twitter className="w-8 h-8 text-blue-500 mx-auto mb-2" />
           <h3 className="font-semibold mb-1">Tech Twitter</h3>
-          <p className="text-sm text-gray-600">Follow industry experts</p>
-          <ExternalLink className="w-4 h-4 mt-2 mx-auto text-gray-400" />
+          <p className="text-sm text-muted-foreground">Follow industry experts</p>
+          <ExternalLink className="w-4 h-4 mt-2 mx-auto text-muted-foreground" />
         </Card>
       </div>
     </div>

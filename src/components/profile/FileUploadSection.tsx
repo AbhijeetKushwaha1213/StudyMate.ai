@@ -148,8 +148,8 @@ export const FileUploadSection = ({ onFileUpload }: FileUploadSectionProps) => {
     <Card className="p-6">
       <div className="space-y-4">
         <div className="text-center">
-          <h3 className="font-semibold text-gray-900 mb-1">Study Materials & Documents</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="font-semibold text-foreground mb-1">Study Materials & Documents</h3>
+          <p className="text-sm text-muted-foreground">
             Upload PDFs, notes, and other study materials to your profile
           </p>
         </div>
@@ -170,10 +170,10 @@ export const FileUploadSection = ({ onFileUpload }: FileUploadSectionProps) => {
             className={`cursor-pointer block ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <Upload className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-            <div className="text-sm text-gray-600 mb-1">
+            <div className="text-sm text-muted-foreground mb-1">
               {uploading ? 'Uploading...' : 'Click to upload or drag and drop'}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-muted-foreground">
               PDF, DOC, DOCX, TXT (max 10MB)
             </div>
           </label>
@@ -181,7 +181,7 @@ export const FileUploadSection = ({ onFileUpload }: FileUploadSectionProps) => {
           {uploading && (
             <div className="mt-4 space-y-2">
               <Progress value={uploadProgress} className="w-full" />
-              <div className="text-sm text-gray-600">{Math.round(uploadProgress)}% uploaded</div>
+              <div className="text-sm text-muted-foreground">{Math.round(uploadProgress)}% uploaded</div>
             </div>
           )}
         </div>
@@ -189,7 +189,7 @@ export const FileUploadSection = ({ onFileUpload }: FileUploadSectionProps) => {
         {/* Uploaded Files List */}
         {uploadedFiles.length > 0 && (
           <div className="space-y-2">
-            <h4 className="font-medium text-gray-900">Uploaded Files</h4>
+            <h4 className="font-medium text-foreground">Uploaded Files</h4>
             {uploadedFiles.map((file) => (
               <div
                 key={file.id}
@@ -198,10 +198,10 @@ export const FileUploadSection = ({ onFileUpload }: FileUploadSectionProps) => {
                 <div className="flex items-center space-x-3">
                   <span className="text-2xl">{getFileIcon(file.type)}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-foreground truncate">
                       {file.name}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {formatFileSize(file.size)} • {file.uploadedAt.toLocaleDateString()}
                     </p>
                   </div>
@@ -223,7 +223,7 @@ export const FileUploadSection = ({ onFileUpload }: FileUploadSectionProps) => {
         )}
 
         {/* File Type Info */}
-        <div className="text-xs text-gray-500 bg-blue-50 p-3 rounded-lg">
+        <div className="text-xs text-muted-foreground bg-blue-50 p-3 rounded-lg">
           <div className="flex items-start space-x-2">
             <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
             <div>

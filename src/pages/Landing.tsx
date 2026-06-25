@@ -7,7 +7,7 @@ import { Footer } from '../components/landing/Footer';
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-accent/30 via-background to-accent/20">
       <Hero />
       <Features />
       <TrustSection />

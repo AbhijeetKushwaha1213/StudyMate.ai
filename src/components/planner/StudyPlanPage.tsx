@@ -53,19 +53,19 @@ export const StudyPlanPage = ({ onBack }: StudyPlanPageProps) => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle className="w-4 h-4 text-green-600" />;
-      case 'current': return <Clock className="w-4 h-4 text-blue-600" />;
-      case 'pending': return <AlertCircle className="w-4 h-4 text-gray-400" />;
+      case 'completed': return <CheckCircle className="w-4 h-4 text-success" />;
+      case 'current': return <Clock className="w-4 h-4 text-primary" />;
+      case 'pending': return <AlertCircle className="w-4 h-4 text-muted-foreground" />;
       default: return null;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-50 border-green-200';
-      case 'current': return 'bg-blue-50 border-blue-200';
-      case 'pending': return 'bg-gray-50 border-gray-200';
-      default: return 'bg-gray-50 border-gray-200';
+      case 'completed': return 'bg-success/10 border-success/30';
+      case 'current': return 'bg-primary/10 border-primary/30';
+      case 'pending': return 'bg-muted border-border';
+      default: return 'bg-muted border-border';
     }
   };
 
@@ -91,7 +91,7 @@ export const StudyPlanPage = ({ onBack }: StudyPlanPageProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/20 p-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -99,8 +99,8 @@ export const StudyPlanPage = ({ onBack }: StudyPlanPageProps) => {
             <Button variant="ghost" onClick={onBack} className="mb-2">
               ← Back to Dashboard
             </Button>
-            <h1 className="text-3xl font-bold text-gray-900">Study Plan</h1>
-            <p className="text-gray-600">Your personalized learning journey</p>
+            <h1 className="text-3xl font-bold text-gradient">Study Plan</h1>
+            <p className="text-muted-foreground">Your personalized learning journey</p>
           </div>
           <Button onClick={handleEditPlan} variant="outline">
             <Edit className="w-4 h-4 mr-2" />
@@ -133,7 +133,7 @@ export const StudyPlanPage = ({ onBack }: StudyPlanPageProps) => {
                     {getStatusIcon(item.status)}
                     <div className="ml-3 flex-1">
                       <h4 className="font-medium">{item.subject} - {item.topic}</h4>
-                      <p className="text-sm text-gray-600">Duration: {item.duration}</p>
+                      <p className="text-sm text-muted-foreground">Duration: {item.duration}</p>
                     </div>
                     <Badge variant={item.status === 'completed' ? 'default' : 'outline'}>
                       {item.status === 'completed' ? 'Done' : 
@@ -150,14 +150,14 @@ export const StudyPlanPage = ({ onBack }: StudyPlanPageProps) => {
               <h3 className="text-xl font-semibold mb-4">Weekly Overview</h3>
               <div className="space-y-4">
                 {weeklyPlan.map((day, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-4 bg-muted rounded-lg">
                     <div className="flex-1">
                       <h4 className="font-medium">{day.day}</h4>
-                      <p className="text-sm text-gray-600">{day.subjects.join(', ')}</p>
+                      <p className="text-sm text-muted-foreground">{day.subjects.join(', ')}</p>
                     </div>
                     <div className="w-32">
                       <Progress value={day.progress} className="h-2" />
-                      <p className="text-xs text-gray-500 mt-1">{day.progress}% complete</p>
+                      <p className="text-xs text-muted-foreground mt-1">{day.progress}% complete</p>
                     </div>
                   </div>
                 ))}
@@ -174,7 +174,7 @@ export const StudyPlanPage = ({ onBack }: StudyPlanPageProps) => {
                     <div key={index} className="space-y-2">
                       <div className="flex justify-between">
                         <span className="font-medium">{goal.subject}</span>
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-muted-foreground">
                           {goal.completed}/{goal.total} topics
                         </span>
                       </div>
@@ -200,24 +200,24 @@ export const StudyPlanPage = ({ onBack }: StudyPlanPageProps) => {
             <Card className="p-6">
               <h3 className="text-xl font-semibold mb-4">Year-Long Journey</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center p-6 bg-blue-50 rounded-lg">
-                  <Target className="w-12 h-12 mx-auto mb-3 text-blue-600" />
+                <div className="text-center p-6 bg-primary/5 border border-primary/20 rounded-xl">
+                  <Target className="w-12 h-12 mx-auto mb-3 text-primary" />
                   <h4 className="font-semibold mb-2">JEE Preparation</h4>
-                  <p className="text-sm text-gray-600">Complete syllabus by March 2024</p>
+                  <p className="text-sm text-muted-foreground">Complete syllabus by March 2024</p>
                   <Progress value={65} className="h-2 mt-3" />
                 </div>
                 
-                <div className="text-center p-6 bg-green-50 rounded-lg">
-                  <CheckCircle className="w-12 h-12 mx-auto mb-3 text-green-600" />
+                <div className="text-center p-6 bg-success/5 border border-success/20 rounded-xl">
+                  <CheckCircle className="w-12 h-12 mx-auto mb-3 text-success" />
                   <h4 className="font-semibold mb-2">Mock Tests</h4>
-                  <p className="text-sm text-gray-600">Weekly practice tests</p>
+                  <p className="text-sm text-muted-foreground">Weekly practice tests</p>
                   <Progress value={40} className="h-2 mt-3" />
                 </div>
                 
-                <div className="text-center p-6 bg-purple-50 rounded-lg">
-                  <CalendarIcon className="w-12 h-12 mx-auto mb-3 text-purple-600" />
+                <div className="text-center p-6 bg-accent border border-primary/20 rounded-xl">
+                  <CalendarIcon className="w-12 h-12 mx-auto mb-3 text-primary" />
                   <h4 className="font-semibold mb-2">Revision Cycles</h4>
-                  <p className="text-sm text-gray-600">3 complete revision rounds</p>
+                  <p className="text-sm text-muted-foreground">3 complete revision rounds</p>
                   <Progress value={20} className="h-2 mt-3" />
                 </div>
               </div>

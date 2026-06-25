@@ -252,8 +252,8 @@ export const PremiumAIGenerator = () => {
   const renderChooseStep = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Choose What to Generate</h2>
-        <p className="text-gray-600">Select the type of study material you need</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Choose What to Generate</h2>
+        <p className="text-muted-foreground">Select the type of study material you need</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -270,11 +270,11 @@ export const PremiumAIGenerator = () => {
               <div className={`w-16 h-16 bg-gradient-to-r ${card.gradient} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                 <Icon className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">{card.title}</h3>
-              <p className="text-sm text-gray-600 mb-3">{card.description}</p>
+              <h3 className="text-lg font-bold text-foreground mb-2">{card.title}</h3>
+              <p className="text-sm text-muted-foreground mb-3">{card.description}</p>
               <div className="space-y-1">
                 {card.examples.map((example, i) => (
-                  <div key={i} className="text-xs text-gray-500 flex items-center">
+                  <div key={i} className="text-xs text-muted-foreground flex items-center">
                     <ChevronRight className="w-3 h-3 mr-1" />
                     {example}
                   </div>
@@ -291,8 +291,8 @@ export const PremiumAIGenerator = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Provide Study Material</h2>
-          <p className="text-gray-600">Upload files, paste notes, or enter a topic</p>
+          <h2 className="text-2xl font-bold text-foreground mb-2">Provide Study Material</h2>
+          <p className="text-muted-foreground">Upload files, paste notes, or enter a topic</p>
         </div>
         <Button variant="ghost" onClick={() => setStep('choose')}>
           Change Type
@@ -316,16 +316,16 @@ export const PremiumAIGenerator = () => {
         </TabsList>
 
         <TabsContent value="upload" className="space-y-4">
-          <Card className="p-8 border-2 border-dashed border-gray-300 hover:border-purple-400 transition-colors">
+          <Card className="p-8 border-2 border-dashed border-border hover:border-primary/50 transition-colors">
             {!uploadedFile ? (
               <div className="text-center">
                 <div className="w-20 h-20 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Upload className="w-10 h-10 text-purple-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
                   Drop your files here, or browse
                 </h3>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   Supports PDF, TXT files up to 50KB
                 </p>
                 <Input
@@ -350,8 +350,8 @@ export const PremiumAIGenerator = () => {
                     <CheckCircle2 className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">{uploadedFile.name}</p>
-                    <p className="text-sm text-gray-600">{(uploadedFile.size / 1024).toFixed(2)} KB</p>
+                    <p className="font-semibold text-foreground">{uploadedFile.name}</p>
+                    <p className="text-sm text-muted-foreground">{(uploadedFile.size / 1024).toFixed(2)} KB</p>
                   </div>
                 </div>
                 <Button
@@ -374,7 +374,7 @@ export const PremiumAIGenerator = () => {
               placeholder="Paste your study notes, lecture content, or textbook excerpts here..."
               className="min-h-[300px] text-base font-mono border-0 focus-visible:ring-0 resize-none"
             />
-            <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
+            <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
               <span>{content.length} characters</span>
               <Button
                 variant="ghost"
@@ -395,8 +395,8 @@ export const PremiumAIGenerator = () => {
                 <Lightbulb className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">What would you like to learn?</h3>
-                <p className="text-sm text-gray-600">Enter any topic and AI will generate content</p>
+                <h3 className="font-semibold text-foreground">What would you like to learn?</h3>
+                <p className="text-sm text-muted-foreground">Enter any topic and AI will generate content</p>
               </div>
             </div>
             <Input
@@ -428,8 +428,8 @@ export const PremiumAIGenerator = () => {
   const renderSettingsStep = () => (
     <div className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Generation Settings</h2>
-        <p className="text-gray-600">Customize your AI-generated content</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Generation Settings</h2>
+        <p className="text-muted-foreground">Customize your AI-generated content</p>
       </div>
 
       <Card className="p-6 space-y-6">
@@ -471,7 +471,7 @@ export const PremiumAIGenerator = () => {
           </div>
           {outputSize === 0 && (
             <div className="mt-4">
-              <Label className="text-sm text-gray-600 mb-2 block">
+              <Label className="text-sm text-muted-foreground mb-2 block">
                 Custom Size: {customSize}
               </Label>
               <Slider
@@ -498,9 +498,9 @@ export const PremiumAIGenerator = () => {
               { key: 'includePreviousYear', label: 'Include previous year concepts', icon: Clock },
               { key: 'personalized', label: 'Personalized based on progress', icon: TrendingUp }
             ].map(({ key, label, icon: Icon }) => (
-              <div key={key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div key={key} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <Icon className="w-4 h-4 text-gray-600" />
+                  <Icon className="w-4 h-4 text-muted-foreground" />
                   <Label htmlFor={key} className="text-sm font-medium cursor-pointer">
                     {label}
                   </Label>
@@ -549,8 +549,8 @@ export const PremiumAIGenerator = () => {
     return (
       <div className="space-y-6">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">AI Preview</h2>
-          <p className="text-gray-600">Here's what AI will generate for you</p>
+          <h2 className="text-2xl font-bold text-foreground mb-2">AI Preview</h2>
+          <p className="text-muted-foreground">Here's what AI will generate for you</p>
         </div>
 
         <Card className={`p-6 bg-gradient-to-r ${selectedCard.gradient} text-white`}>
@@ -571,11 +571,11 @@ export const PremiumAIGenerator = () => {
             <>
               <Card className="p-4 animate-fade-in">
                 <Badge className="mb-2">Question</Badge>
-                <p className="text-sm text-gray-700">What is {topic || 'the main concept'}?</p>
+                <p className="text-sm text-foreground">What is {topic || 'the main concept'}?</p>
               </Card>
               <Card className="p-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
                 <Badge className="mb-2">Answer</Badge>
-                <p className="text-sm text-gray-700">Detailed explanation with examples...</p>
+                <p className="text-sm text-foreground">Detailed explanation with examples...</p>
               </Card>
             </>
           )}
@@ -583,10 +583,10 @@ export const PremiumAIGenerator = () => {
           {selectedType === 'quizzes' && (
             <Card className="p-4 col-span-full animate-fade-in">
               <Badge className="mb-2">MCQ Example</Badge>
-              <p className="font-medium text-gray-900 mb-2">Which of the following is correct?</p>
+              <p className="font-medium text-foreground mb-2">Which of the following is correct?</p>
               <div className="space-y-1">
                 {['A) Option 1', 'B) Option 2', 'C) Option 3', 'D) Option 4'].map((opt, i) => (
-                  <div key={i} className="text-sm text-gray-600">{opt}</div>
+                  <div key={i} className="text-sm text-muted-foreground">{opt}</div>
                 ))}
               </div>
             </Card>
@@ -642,15 +642,15 @@ export const PremiumAIGenerator = () => {
           </div>
         </div>
 
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">{currentStage.text}</h3>
-        <p className="text-gray-600 mb-8">Please wait while AI processes your content</p>
+        <h3 className="text-2xl font-bold text-foreground mb-2">{currentStage.text}</h3>
+        <p className="text-muted-foreground mb-8">Please wait while AI processes your content</p>
 
         <div className="flex gap-2">
           {generationStages.map((_, i) => (
             <div
               key={i}
               className={`w-3 h-3 rounded-full transition-all ${
-                i <= generationStage ? 'bg-purple-600' : 'bg-gray-300'
+                i <= generationStage ? 'bg-primary' : 'bg-muted'
               }`}
             />
           ))}
@@ -665,8 +665,8 @@ export const PremiumAIGenerator = () => {
         <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-scale-in">
           <CheckCircle2 className="w-10 h-10 text-white" />
         </div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Generation Complete!</h2>
-        <p className="text-gray-600">Your {selectedType} are ready to review</p>
+        <h2 className="text-3xl font-bold text-foreground mb-2">Generation Complete!</h2>
+        <p className="text-muted-foreground">Your {selectedType} are ready to review</p>
       </div>
 
       {/* Result Cards with animation */}
@@ -679,10 +679,10 @@ export const PremiumAIGenerator = () => {
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-2">
+                <h3 className="font-semibold text-foreground mb-2">
                   {selectedType?.charAt(0).toUpperCase()}{selectedType?.slice(1)} {i + 1}
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Generated content preview...
                 </p>
               </div>
@@ -743,13 +743,13 @@ export const PremiumAIGenerator = () => {
   const renderRightSidebar = () => (
     <Card className="p-6 sticky top-6 space-y-6">
       <div>
-        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
           <Clock className="w-4 h-4" />
           Recent Generations
         </h3>
         <div className="space-y-2 text-sm">
           {['Flashcards - Biology', 'Quiz - Physics', 'Mind Map - History'].map((item, i) => (
-            <div key={i} className="p-2 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+            <div key={i} className="p-2 bg-muted rounded-lg hover:bg-muted/70 cursor-pointer transition-colors">
               {item}
             </div>
           ))}
@@ -757,7 +757,7 @@ export const PremiumAIGenerator = () => {
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
           <Lightbulb className="w-4 h-4" />
           Suggested Prompts
         </h3>
@@ -781,11 +781,11 @@ export const PremiumAIGenerator = () => {
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
           <TrendingUp className="w-4 h-4" />
           Learning Tips
         </h3>
-        <div className="space-y-3 text-sm text-gray-600">
+        <div className="space-y-3 text-sm text-muted-foreground">
           <p>✨ Use adaptive difficulty for personalized learning</p>
           <p>📚 Include examples for better understanding</p>
           <p>🎯 Enable exam tips for test preparation</p>
@@ -795,7 +795,7 @@ export const PremiumAIGenerator = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/20 p-6">
       <div className="max-w-7xl mx-auto">
         {renderHeroSection()}
         

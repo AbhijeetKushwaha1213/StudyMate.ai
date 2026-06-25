@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (2024-06-25) — Premium Frontend Upgrade (Phase 4: Dark-Mode Polish + Public Pages)
+- **🪄 Premium AI Generator**: converted all hardcoded grays/light backgrounds to theme tokens — the generator (hero stats, choose/input/settings/preview/generating/result steps, sidebar) is now fully dark-mode safe
+- **👤 Profile sub-components**: AvatarUpload and FileUploadSection now use theme tokens
+- **🔔 Notifications & 🔍 Discover**: replaced leftover gray text with theme tokens
+- **🌐 Landing**: brand-tinted page background
+- **✅ Consistency**: dark-mode audit pass across active components (legacy/unused components like AIStudyMaterialGenerator, AIFlashcardGenerator, UserTypeSelection intentionally left untouched)
+
 ### Added (2024-06-25) — Premium Frontend Upgrade (Phase 3: Study Tools + Consistency)
 - **🗂️ Flashcard Vault**: gradient title, interactive content cards, semantic difficulty badges, theme-token text, dark-mode-safe empty/loading states
 - **🃏 Flashcard Viewer**: theme-token header, brand-gradient progress bar, semantic difficulty colors

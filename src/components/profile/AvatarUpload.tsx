@@ -170,13 +170,13 @@ export const AvatarUpload = ({ currentAvatar, userName, onAvatarUpdate }: Avatar
           </Avatar>
           
           <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-md">
-            <Camera className="w-4 h-4 text-gray-600" />
+            <Camera className="w-4 h-4 text-muted-foreground" />
           </div>
         </div>
 
         <div className="text-center">
-          <h3 className="font-semibold text-gray-900 mb-1">Profile Picture</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="font-semibold text-foreground mb-1">Profile Picture</h3>
+          <p className="text-sm text-muted-foreground">
             Upload a photo to personalize your profile
           </p>
         </div>
@@ -217,7 +217,7 @@ export const AvatarUpload = ({ currentAvatar, userName, onAvatarUpdate }: Avatar
           )}
         </div>
 
-        <div className="text-xs text-gray-500 text-center">
+        <div className="text-xs text-muted-foreground text-center">
           Supported formats: JPG, PNG, GIF (max 5MB)
         </div>
       </div>
