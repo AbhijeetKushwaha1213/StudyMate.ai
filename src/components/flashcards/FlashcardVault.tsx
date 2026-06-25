@@ -38,10 +38,10 @@ export const FlashcardVault = () => {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty?.toLowerCase()) {
-      case 'easy': return 'bg-green-100 text-green-800 border-green-300';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'hard': return 'bg-red-100 text-red-800 border-red-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'easy': return 'bg-success/10 text-success border-success/30';
+      case 'medium': return 'bg-warning/10 text-warning border-warning/30';
+      case 'hard': return 'bg-destructive/10 text-destructive border-destructive/30';
+      default: return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -88,11 +88,11 @@ export const FlashcardVault = () => {
     const IconComponent = materialIcons[type as keyof typeof materialIcons] || FileText;
     
     return (
-      <Card key={item.id} className="p-4 hover:shadow-md transition-all border border-gray-200">
+      <Card key={item.id} className="p-4 card-interactive">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center space-x-2">
-            <IconComponent className="w-5 h-5 text-purple-600" />
-            <h3 className="font-semibold text-gray-900 line-clamp-1">{item.title || 'Untitled'}</h3>
+            <IconComponent className="w-5 h-5 text-primary" />
+            <h3 className="font-semibold text-foreground line-clamp-1">{item.title || 'Untitled'}</h3>
           </div>
           <div className="flex items-center space-x-2">
             <Badge className={`text-xs border ${getDifficultyColor(item.difficulty)}`}>
@@ -106,13 +106,13 @@ export const FlashcardVault = () => {
 
         <div className="space-y-2 mb-3">
           {type === 'flashcards' && item.question && (
-            <p className="text-sm text-gray-600 line-clamp-2">
+            <p className="text-sm text-muted-foreground line-clamp-2">
               <strong>Q:</strong> {item.question}
             </p>
           )}
           
           {item.topic && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               <strong>Topic:</strong> {item.topic}
             </p>
           )}
@@ -125,12 +125,12 @@ export const FlashcardVault = () => {
                 </Badge>
               ))}
               {item.tags.length > 3 && (
-                <span className="text-xs text-gray-500">+{item.tags.length - 3} more</span>
+                <span className="text-xs text-muted-foreground">+{item.tags.length - 3} more</span>
               )}
             </div>
           )}
           
-          <div className="flex items-center text-xs text-gray-400 space-x-2">
+          <div className="flex items-center text-xs text-muted-foreground space-x-2">
             <Calendar className="w-3 h-3" />
             <span>{format(new Date(item.created_at), 'MMM dd, yyyy')}</span>
           </div>
@@ -150,7 +150,7 @@ export const FlashcardVault = () => {
             variant="outline"
             size="sm"
             onClick={() => handleDelete(item.id, type)}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="w-3 h-3" />
           </Button>
@@ -225,19 +225,19 @@ export const FlashcardVault = () => {
                   <div className="space-y-4">
                     {viewingContent.content.summary && (
                       <div>
-                        <h4 className="font-medium text-gray-900 mb-2">Summary</h4>
-                        <p className="text-gray-700">{viewingContent.content.summary}</p>
+                        <h4 className="font-medium text-foreground mb-2">Summary</h4>
+                        <p className="text-muted-foreground">{viewingContent.content.summary}</p>
                       </div>
                     )}
                     
                     {viewingContent.content.key_points && (
                       <div>
-                        <h4 className="font-medium text-gray-900 mb-2">Key Points</h4>
+                        <h4 className="font-medium text-foreground mb-2">Key Points</h4>
                         <div className="space-y-2">
                           {viewingContent.content.key_points.map((point: any, index: number) => (
                             <div key={index} className="border-l-4 border-blue-500 pl-4">
                               <h5 className="font-medium">{point.heading}</h5>
-                              <p className="text-gray-700">{point.content}</p>
+                              <p className="text-muted-foreground">{point.content}</p>
                             </div>
                           ))}
                         </div>
@@ -246,17 +246,17 @@ export const FlashcardVault = () => {
                     
                     {viewingContent.content.quick_facts && (
                       <div>
-                        <h4 className="font-medium text-gray-900 mb-2">Quick Facts</h4>
+                        <h4 className="font-medium text-foreground mb-2">Quick Facts</h4>
                         <ul className="list-disc list-inside space-y-1">
                           {viewingContent.content.quick_facts.map((fact: string, index: number) => (
-                            <li key={index} className="text-gray-700">{fact}</li>
+                            <li key={index} className="text-muted-foreground">{fact}</li>
                           ))}
                         </ul>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded">
+                  <pre className="whitespace-pre-wrap text-sm bg-muted p-4 rounded">
                     {JSON.stringify(viewingContent.content, null, 2)}
                   </pre>
                 )}
@@ -271,8 +271,8 @@ export const FlashcardVault = () => {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
-          <p className="text-gray-600">Loading your study materials...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+          <p className="text-muted-foreground">Loading your study materials...</p>
         </div>
       </div>
     );
@@ -292,10 +292,10 @@ export const FlashcardVault = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">Study Vault</h1>
+        <h1 className="text-2xl font-bold text-gradient">Study Vault</h1>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+            <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
             <Input
               placeholder="Search by title, topic, or content..."
               value={searchTerm}
@@ -340,13 +340,13 @@ export const FlashcardVault = () => {
       {/* Empty State */}
       {allFilteredContent.length === 0 && !isLoading && (
         <div className="text-center py-12">
-          <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <BookOpen className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">
             {flashcards.length === 0 && studyMaterials.length === 0 
               ? "No study materials yet" 
               : "No materials match your search"}
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-muted-foreground mb-4">
             {flashcards.length === 0 && studyMaterials.length === 0 
               ? "Switch to the Generate tab to create your first flashcards, quizzes, or notes!" 
               : "Try adjusting your search terms or filters"}

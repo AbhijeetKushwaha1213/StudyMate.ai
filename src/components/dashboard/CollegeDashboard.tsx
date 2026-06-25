@@ -215,7 +215,7 @@ export const CollegeDashboard = () => {
             <h4 className="text-lg font-medium text-foreground mb-2">No Projects Added</h4>
             <p className="text-muted-foreground mb-4">Start by adding your first project to track your progress</p>
             <AddProjectDialog trigger={
-              <Button className="bg-indigo-600 hover:bg-indigo-700">
+              <Button variant="premium">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Your First Project
               </Button>
@@ -256,7 +256,7 @@ export const CollegeDashboard = () => {
                   <Button 
                     onClick={() => handleContinueProject(project)}
                     size="sm" 
-                    className="bg-indigo-600 hover:bg-indigo-700"
+                    variant="premium"
                   >
                     Continue Working
                     <ArrowRight className="w-4 h-4 ml-1" />
@@ -291,7 +291,7 @@ export const CollegeDashboard = () => {
             <h4 className="text-lg font-medium text-foreground mb-2">No Skills Added</h4>
             <p className="text-muted-foreground mb-4">Start by adding your first skill to track your learning progress</p>
             <AddSkillDialog trigger={
-              <Button className="bg-indigo-600 hover:bg-indigo-700">
+              <Button variant="premium">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Your First Skill
               </Button>
@@ -449,7 +449,7 @@ export const CollegeDashboard = () => {
                                         handleUnlockNextDay(item);
                                       }}
                                       size="sm" 
-                                      className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
+                                      variant="premium"
                                     >
                                       Unlock Next Targets
                                       <Zap className="w-3.5 h-3.5 ml-1.5" />

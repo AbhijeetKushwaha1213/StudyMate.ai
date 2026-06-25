@@ -116,7 +116,7 @@ export const RevisionLogModal = ({ open, onOpenChange }: RevisionLogModalProps) 
             <Button 
               onClick={() => setShowAddForm(true)} 
               size="sm" 
-              className="bg-indigo-600 hover:bg-indigo-700"
+              variant="premium"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Revision
@@ -277,7 +277,7 @@ export const RevisionLogModal = ({ open, onOpenChange }: RevisionLogModalProps) 
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>
-          <Button className="bg-indigo-600 hover:bg-indigo-700">
+          <Button variant="premium">
             Export Log
           </Button>
         </div>

@@ -31,7 +31,7 @@ export const MinimizableAIChat = ({
       <div className={`fixed bottom-4 right-4 z-50 ${className}`}>
         <Button
           onClick={toggleMinimized}
-          className="h-12 w-12 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg"
+          className="h-12 w-12 rounded-full bg-brand-gradient text-white shadow-glow"
           size="icon"
         >
           <MessageSquare className="w-5 h-5" />

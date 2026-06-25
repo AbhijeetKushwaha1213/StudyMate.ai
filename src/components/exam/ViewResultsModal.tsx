@@ -123,7 +123,7 @@ export const ViewResultsModal = ({ open, onOpenChange }: ViewResultsModalProps) 
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>
-          <Button className="bg-indigo-600 hover:bg-indigo-700">
+          <Button variant="premium">
             Download All Reports
           </Button>
         </div>

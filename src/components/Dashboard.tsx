@@ -81,7 +81,7 @@ export const Dashboard = () => {
                   <h4 className="text-lg font-medium text-foreground mb-2">No Subjects Added</h4>
                   <p className="text-muted-foreground mb-4">Start by adding your first subject to track your progress</p>
                   <AddSubjectDialog trigger={
-                    <Button className="bg-indigo-600 hover:bg-indigo-700">
+                    <Button variant="premium">
                       <Plus className="w-4 h-4 mr-2" />
                       Add Your First Subject
                     </Button>

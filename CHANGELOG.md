@@ -22,6 +22,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (2024-06-25) — Premium Frontend Upgrade (Phase 3: Study Tools + Consistency)
+- **🗂️ Flashcard Vault**: gradient title, interactive content cards, semantic difficulty badges, theme-token text, dark-mode-safe empty/loading states
+- **🃏 Flashcard Viewer**: theme-token header, brand-gradient progress bar, semantic difficulty colors
+- **❓ Quiz Viewer**: semantic option states (correct/incorrect/selected), themed explanation box, semantic score/difficulty colors
+- **🧠 Mind Map Viewer**: brand-gradient central topic node with glow, theme-token header and difficulty colors
+- **🪄 AI Generator Page**: gradient title and theme-token subtitle
+- **🎯 Button Consistency**: converted remaining hardcoded indigo buttons to the `premium` gradient variant across dashboards, exam modals, AI assistant, and minimizable chat
+
 ### Added (2024-06-25) — Premium Frontend Upgrade (Phase 2: Pages + Dark Mode)
 - **💬 AI Chat**: gradient bot avatar, brand-gradient user message bubbles, rounded bubbles, themed loading state, premium send button
 - **🏆 Achievements**: dark-mode-safe summary stat cards with gradient icons, gradient title, themed achievement cards with hover lift

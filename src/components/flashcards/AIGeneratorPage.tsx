@@ -13,8 +13,8 @@ export const AIGeneratorPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">AI Generator</h1>
-          <p className="text-gray-600 mt-1">Create flashcards, quizzes, mind maps, and more with AI</p>
+          <h1 className="text-3xl font-bold text-gradient">AI Generator</h1>
+          <p className="text-muted-foreground mt-1">Create flashcards, quizzes, mind maps, and more with AI</p>
         </div>
       </div>
 

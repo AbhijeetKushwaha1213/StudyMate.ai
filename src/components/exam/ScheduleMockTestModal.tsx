@@ -109,7 +109,7 @@ export const ScheduleMockTestModal = ({ open, onOpenChange }: ScheduleMockTestMo
           <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
             Cancel
           </Button>
-          <Button onClick={handleSchedule} className="flex-1 bg-indigo-600 hover:bg-indigo-700">
+          <Button onClick={handleSchedule} variant="premium" className="flex-1">
             <Clock className="w-4 h-4 mr-2" />
             Schedule Test
           </Button>

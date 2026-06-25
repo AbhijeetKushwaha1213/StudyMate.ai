@@ -136,7 +136,7 @@ export const AIAssistant = () => {
                   />
                   <Button 
                     onClick={handleSendMessage}
-                    className="bg-indigo-600 hover:bg-indigo-700"
+                    variant="premium"
                   >
                     <Send className="w-4 h-4" />
                   </Button>

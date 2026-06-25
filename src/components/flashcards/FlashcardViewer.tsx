@@ -44,17 +44,17 @@ export const FlashcardViewer = ({ flashcards, title, difficulty, startingIndex =
 
   const getDifficultyColor = (level: string) => {
     switch (level) {
-      case 'easy': return 'bg-green-100 text-green-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'hard': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'easy': return 'bg-success/10 text-success';
+      case 'medium': return 'bg-warning/10 text-warning';
+      case 'hard': return 'bg-destructive/10 text-destructive';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
   if (!flashcards.length) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">No flashcards available</p>
+        <p className="text-muted-foreground">No flashcards available</p>
       </div>
     );
   }
@@ -64,12 +64,12 @@ export const FlashcardViewer = ({ flashcards, title, difficulty, startingIndex =
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          <h2 className="text-2xl font-bold text-foreground">{title}</h2>
           <div className="flex items-center space-x-2 mt-1">
             <Badge className={getDifficultyColor(difficulty)}>
               {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
             </Badge>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-muted-foreground">
               {currentIndex + 1} of {flashcards.length}
             </span>
           </div>
@@ -82,9 +82,9 @@ export const FlashcardViewer = ({ flashcards, title, difficulty, startingIndex =
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-gray-200 rounded-full h-2">
+      <div className="w-full bg-muted rounded-full h-2">
         <div 
-          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+          className="bg-brand-gradient h-2 rounded-full transition-all duration-300"
           style={{ width: `${((currentIndex + 1) / flashcards.length) * 100}%` }}
         />
       </div>

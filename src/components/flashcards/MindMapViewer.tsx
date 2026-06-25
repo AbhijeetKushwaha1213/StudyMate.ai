@@ -46,17 +46,17 @@ export const MindMapViewer = ({ mindmap, title, difficulty, onClose }: MindMapVi
 
   const getDifficultyColor = (level: string) => {
     switch (level) {
-      case 'easy': return 'bg-green-100 text-green-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'hard': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'easy': return 'bg-success/10 text-success';
+      case 'medium': return 'bg-warning/10 text-warning';
+      case 'hard': return 'bg-destructive/10 text-destructive';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
   if (!mindmap) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">No mind map data available</p>
+        <p className="text-muted-foreground">No mind map data available</p>
       </div>
     );
   }
@@ -66,12 +66,12 @@ export const MindMapViewer = ({ mindmap, title, difficulty, onClose }: MindMapVi
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          <h2 className="text-2xl font-bold text-foreground">{title}</h2>
           <div className="flex items-center space-x-2 mt-1">
             <Badge className={getDifficultyColor(difficulty)}>
               {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
             </Badge>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-muted-foreground">
               {mindmap.branches.length} main branches
             </span>
           </div>
@@ -94,10 +94,10 @@ export const MindMapViewer = ({ mindmap, title, difficulty, onClose }: MindMapVi
       {/* Mind Map */}
       <div className="flex flex-col items-center space-y-8">
         {/* Central Topic */}
-        <Card className="p-6 bg-gradient-to-br from-purple-100 to-indigo-100 border-2 border-purple-300 shadow-lg">
+        <Card className="p-6 bg-brand-gradient border-0 shadow-glow">
           <div className="text-center">
-            <Brain className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-            <h3 className="text-2xl font-bold text-purple-900">{mindmap.central_topic}</h3>
+            <Brain className="w-8 h-8 mx-auto mb-2 text-white" />
+            <h3 className="text-2xl font-bold text-white">{mindmap.central_topic}</h3>
           </div>
         </Card>
 
@@ -166,7 +166,7 @@ export const MindMapViewer = ({ mindmap, title, difficulty, onClose }: MindMapVi
 
       {/* Connection Lines Visualization */}
       <div className="text-center mt-8">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted-foreground">
           Click on branch titles to expand/collapse subtopics
         </p>
       </div>

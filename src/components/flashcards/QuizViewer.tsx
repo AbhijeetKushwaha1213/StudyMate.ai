@@ -74,24 +74,24 @@ export const QuizViewer = ({ questions, title, difficulty, onClose }: QuizViewer
 
   const getScoreColor = (score: number, total: number) => {
     const percentage = (score / total) * 100;
-    if (percentage >= 80) return 'text-green-600';
-    if (percentage >= 60) return 'text-yellow-600';
-    return 'text-red-600';
+    if (percentage >= 80) return 'text-success';
+    if (percentage >= 60) return 'text-warning';
+    return 'text-destructive';
   };
 
   const getDifficultyColor = (level: string) => {
     switch (level) {
-      case 'easy': return 'bg-green-100 text-green-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'hard': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'easy': return 'bg-success/10 text-success';
+      case 'medium': return 'bg-warning/10 text-warning';
+      case 'hard': return 'bg-destructive/10 text-destructive';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
   if (!questions.length) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">No quiz questions available</p>
+        <p className="text-muted-foreground">No quiz questions available</p>
       </div>
     );
   }
@@ -104,12 +104,12 @@ export const QuizViewer = ({ questions, title, difficulty, onClose }: QuizViewer
       <div className="space-y-6">
         <div className="text-center">
           <Trophy className="w-16 h-16 mx-auto mb-4 text-yellow-500" />
-          <h2 className="text-3xl font-bold text-gray-900">Quiz Complete!</h2>
+          <h2 className="text-3xl font-bold text-foreground">Quiz Complete!</h2>
           <div className="mt-4">
             <div className={`text-6xl font-bold ${getScoreColor(score, questions.length)}`}>
               {score}/{questions.length}
             </div>
-            <div className="text-xl text-gray-600 mt-2">{percentage}% Correct</div>
+            <div className="text-xl text-muted-foreground mt-2">{percentage}% Correct</div>
           </div>
         </div>
 
@@ -131,7 +131,7 @@ export const QuizViewer = ({ questions, title, difficulty, onClose }: QuizViewer
                     }
                     <div className="flex-1">
                       <p className="font-medium">{question.question}</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-muted-foreground">
                         Your answer: {question.options[userAnswer || 0]}
                       </p>
                       {!isCorrect && (
@@ -167,12 +167,12 @@ export const QuizViewer = ({ questions, title, difficulty, onClose }: QuizViewer
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          <h2 className="text-2xl font-bold text-foreground">{title}</h2>
           <div className="flex items-center space-x-2 mt-1">
             <Badge className={getDifficultyColor(difficulty)}>
               {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
             </Badge>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-muted-foreground">
               Question {currentIndex + 1} of {questions.length}
             </span>
           </div>
@@ -186,7 +186,7 @@ export const QuizViewer = ({ questions, title, difficulty, onClose }: QuizViewer
 
       {/* Progress */}
       <div className="space-y-2">
-        <div className="flex justify-between text-sm text-gray-600">
+        <div className="flex justify-between text-sm text-muted-foreground">
           <span>Progress</span>
           <span>{Math.round(((currentIndex + 1) / questions.length) * 100)}%</span>
         </div>
@@ -195,7 +195,7 @@ export const QuizViewer = ({ questions, title, difficulty, onClose }: QuizViewer
 
       {/* Question */}
       <Card className="p-8">
-        <h3 className="text-xl font-semibold mb-6 text-gray-900">
+        <h3 className="text-xl font-semibold mb-6 text-foreground">
           {currentQuestion.question}
         </h3>
 
@@ -205,17 +205,17 @@ export const QuizViewer = ({ questions, title, difficulty, onClose }: QuizViewer
             
             if (showResults) {
               if (index === currentQuestion.correct_answer) {
-                buttonClass += "border-green-500 bg-green-50 text-green-800";
+                buttonClass += "border-success bg-success/10 text-success";
               } else if (index === currentAnswer && index !== currentQuestion.correct_answer) {
-                buttonClass += "border-red-500 bg-red-50 text-red-800";
+                buttonClass += "border-destructive bg-destructive/10 text-destructive";
               } else {
-                buttonClass += "border-gray-200 bg-gray-50 text-gray-500";
+                buttonClass += "border-border bg-muted text-muted-foreground";
               }
             } else {
               if (index === currentAnswer) {
-                buttonClass += "border-blue-500 bg-blue-50 text-blue-800";
+                buttonClass += "border-primary bg-primary/10 text-primary";
               } else {
-                buttonClass += "border-gray-200 hover:border-blue-300 hover:bg-blue-50";
+                buttonClass += "border-border hover:border-primary/40 hover:bg-primary/5";
               }
             }
 
@@ -239,9 +239,9 @@ export const QuizViewer = ({ questions, title, difficulty, onClose }: QuizViewer
 
         {/* Explanation */}
         {showResults && currentQuestion.explanation && (
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">Explanation:</h4>
-            <p className="text-blue-800">{currentQuestion.explanation}</p>
+          <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+            <h4 className="font-medium text-foreground mb-2">Explanation:</h4>
+            <p className="text-muted-foreground">{currentQuestion.explanation}</p>
           </div>
         )}
       </Card>
