@@ -292,7 +292,7 @@ export const NewAchievementsPage = () => {
 
         <div className="space-y-3">
           <div>
-            <h3 className={`font-semibold text-lg ${achievement.unlocked ? 'text-green-800' : 'text-foreground'}`}>
+            <h3 className={`font-semibold text-lg ${achievement.unlocked ? 'text-success' : 'text-foreground'}`}>
               {achievement.title}
             </h3>
             <p className="text-sm text-muted-foreground">{achievement.description}</p>
@@ -327,7 +327,7 @@ export const NewAchievementsPage = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold text-gradient">
               🏆 Achievements
             </h1>
             <p className="text-muted-foreground text-lg mt-2">

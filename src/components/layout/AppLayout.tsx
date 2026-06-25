@@ -10,7 +10,7 @@ import { RightSidebar } from './RightSidebar';
 import { ChatPanel } from './ChatPanel';
 import { SearchModal } from '../notion/SearchModal';
 import { Button } from '@/components/ui/button';
-import { X, Menu, Maximize, Minimize, MessageCircle, ListTodo } from 'lucide-react';
+import { X, Menu, Maximize, Minimize, MessageCircle, ListTodo, Moon, Sun } from 'lucide-react';
 
 interface AppLayoutProps {
   user: any;
@@ -33,6 +33,16 @@ export const AppLayout = ({
   const [todoSidebarOpen, setTodoSidebarOpen] = useState(false);
   const [chatPanelOpen, setChatPanelOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [isDark, setIsDark] = useState(() =>
+    typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
+  );
+
+  const toggleDarkMode = () => {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('darkMode', next.toString());
+  };
 
   console.log('AppLayout render - activeTab:', activeTab, 'user:', user?.id);
 
@@ -150,6 +160,16 @@ export const AppLayout = ({
           </div>
 
           <div className="flex items-center space-x-2">
+            {/* Dark Mode Toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleDarkMode}
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </Button>
+
             {/* Chat Toggle */}
             <Button
               variant={chatPanelOpen ? "default" : "ghost"}

@@ -111,8 +111,8 @@ export const SettingsPage = () => {
   return (
     <div className="space-y-6 pb-20">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
-        <p className="text-gray-600 dark:text-gray-300">Manage your account and preferences</p>
+        <h1 className="text-2xl font-bold text-gradient">Settings</h1>
+        <p className="text-muted-foreground">Manage your account and preferences</p>
       </div>
 
       <Tabs defaultValue="profile" className="w-full">

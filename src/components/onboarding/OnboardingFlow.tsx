@@ -230,8 +230,8 @@ export const OnboardingFlow = () => {
               <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <User className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">Welcome to StudyMate AI!</h2>
-              <p className="text-lg text-gray-600">Let's get to know you better to personalize your experience</p>
+              <h2 className="text-3xl font-bold text-foreground mb-3">Welcome to StudyMate AI!</h2>
+              <p className="text-lg text-muted-foreground">Let's get to know you better to personalize your experience</p>
             </div>
             
             <div className="space-y-6">
@@ -271,8 +271,8 @@ export const OnboardingFlow = () => {
               <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Camera className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">Add Your Profile Photo</h2>
-              <p className="text-lg text-gray-600">Make your profile more personal (optional)</p>
+              <h2 className="text-3xl font-bold text-foreground mb-3">Add Your Profile Photo</h2>
+              <p className="text-lg text-muted-foreground">Make your profile more personal (optional)</p>
             </div>
 
             <div className="flex flex-col items-center space-y-6">
@@ -301,7 +301,7 @@ export const OnboardingFlow = () => {
                   <Upload className="w-5 h-5 mr-2" />
                   Upload Photo
                 </label>
-                <p className="text-sm text-gray-500 mt-2">JPG, PNG or GIF (max 5MB)</p>
+                <p className="text-sm text-muted-foreground mt-2">JPG, PNG or GIF (max 5MB)</p>
               </div>
             </div>
           </div>
@@ -311,8 +311,8 @@ export const OnboardingFlow = () => {
         return (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">What describes your learning journey?</h2>
-              <p className="text-lg text-gray-600">This helps us customize your dashboard and features</p>
+              <h2 className="text-3xl font-bold text-foreground mb-3">What describes your learning journey?</h2>
+              <p className="text-lg text-muted-foreground">This helps us customize your dashboard and features</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -327,7 +327,7 @@ export const OnboardingFlow = () => {
                 <div className="text-center">
                   <GraduationCap className="w-16 h-16 text-blue-600 mx-auto mb-4" />
                   <h3 className="font-bold text-xl mb-3">College Student</h3>
-                  <p className="text-gray-600 leading-relaxed">Building skills, managing coursework, working on projects, and preparing for your career</p>
+                  <p className="text-muted-foreground leading-relaxed">Building skills, managing coursework, working on projects, and preparing for your career</p>
                 </div>
               </Card>
 
@@ -342,7 +342,7 @@ export const OnboardingFlow = () => {
                 <div className="text-center">
                   <Target className="w-16 h-16 text-green-600 mx-auto mb-4" />
                   <h3 className="font-bold text-xl mb-3">Exam Preparation</h3>
-                  <p className="text-gray-600 leading-relaxed">Focused preparation for competitive exams like JEE, NEET, UPSC, GATE, and more</p>
+                  <p className="text-muted-foreground leading-relaxed">Focused preparation for competitive exams like JEE, NEET, UPSC, GATE, and more</p>
                 </div>
               </Card>
             </div>
@@ -365,7 +365,7 @@ export const OnboardingFlow = () => {
                   </Badge>
                 ))}
               </div>
-              <p className="text-sm text-gray-500 mt-2">Select at least one subject</p>
+              <p className="text-sm text-muted-foreground mt-2">Select at least one subject</p>
             </div>
           </div>
         );
@@ -374,8 +374,8 @@ export const OnboardingFlow = () => {
         return (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">Tell us about your academic details</h2>
-              <p className="text-lg text-gray-600">This helps us create the perfect study plan for you</p>
+              <h2 className="text-3xl font-bold text-foreground mb-3">Tell us about your academic details</h2>
+              <p className="text-lg text-muted-foreground">This helps us create the perfect study plan for you</p>
             </div>
 
             {data.learningMode === 'exam' ? (
@@ -454,8 +454,8 @@ export const OnboardingFlow = () => {
         return (
           <div className="space-y-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">How do you prefer to study?</h2>
-              <p className="text-lg text-gray-600">Let's customize your learning experience</p>
+              <h2 className="text-3xl font-bold text-foreground mb-3">How do you prefer to study?</h2>
+              <p className="text-lg text-muted-foreground">Let's customize your learning experience</p>
             </div>
 
             <div className="space-y-8">
@@ -506,8 +506,8 @@ export const OnboardingFlow = () => {
         return (
           <div className="space-y-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">Plan your study schedule</h2>
-              <p className="text-lg text-gray-600">Help us create the perfect study routine for you</p>
+              <h2 className="text-3xl font-bold text-foreground mb-3">Plan your study schedule</h2>
+              <p className="text-lg text-muted-foreground">Help us create the perfect study routine for you</p>
             </div>
 
             <div className="space-y-8">
@@ -557,8 +557,8 @@ export const OnboardingFlow = () => {
               <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <CheckCircle className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">Complete your profile</h2>
-              <p className="text-lg text-gray-600">Just a few more details to get started</p>
+              <h2 className="text-3xl font-bold text-foreground mb-3">Complete your profile</h2>
+              <p className="text-lg text-muted-foreground">Just a few more details to get started</p>
             </div>
 
             <div className="space-y-6">
@@ -582,7 +582,7 @@ export const OnboardingFlow = () => {
                   onChange={(e) => setData({...data, studyReminder: e.target.value})}
                   className="mt-2 h-12"
                 />
-                <p className="text-sm text-gray-500 mt-2">We'll send you a gentle reminder to study</p>
+                <p className="text-sm text-muted-foreground mt-2">We'll send you a gentle reminder to study</p>
               </div>
             </div>
 
@@ -616,26 +616,26 @@ export const OnboardingFlow = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-br from-accent/30 via-background to-accent/20 flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl animate-fade-in-up">
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
-            <span className="text-sm font-semibold text-gray-700">
+            <span className="text-sm font-semibold text-foreground">
               Step {currentStep + 1} of {STEPS.length}
             </span>
-            <span className="text-sm text-gray-600 font-medium">{STEPS[currentStep]}</span>
+            <span className="text-sm text-muted-foreground font-medium">{STEPS[currentStep]}</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
+          <div className="w-full bg-muted rounded-full h-3 shadow-inner">
             <div 
-              className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
+              className="bg-brand-gradient h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
               style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
             />
           </div>
         </div>
 
         {/* Main Card */}
-        <Card className="p-8 lg:p-12 bg-white/90 backdrop-blur-sm shadow-2xl border-0 rounded-2xl">
+        <Card className="p-8 lg:p-12 glass-strong shadow-premium-lg rounded-2xl">
           {renderStep()}
 
           {/* Navigation Buttons */}
@@ -644,7 +644,7 @@ export const OnboardingFlow = () => {
               variant="outline"
               onClick={handlePrevious}
               disabled={currentStep === 0}
-              className="flex items-center px-6 py-3 h-12 border-2 hover:bg-gray-50"
+              className="flex items-center px-6 h-12 border-2"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Previous
@@ -654,7 +654,9 @@ export const OnboardingFlow = () => {
               <Button
                 onClick={handleComplete}
                 disabled={!canProceed() || isLoading}
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 flex items-center px-8 py-3 h-12 shadow-lg hover:shadow-xl transition-all duration-200"
+                variant="success"
+                size="lg"
+                className="flex items-center"
               >
                 {isLoading ? (
                   <>
@@ -672,7 +674,9 @@ export const OnboardingFlow = () => {
               <Button
                 onClick={handleNext}
                 disabled={!canProceed()}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 flex items-center px-8 py-3 h-12 shadow-lg hover:shadow-xl transition-all duration-200"
+                variant="premium"
+                size="lg"
+                className="flex items-center"
               >
                 Continue
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -683,7 +687,7 @@ export const OnboardingFlow = () => {
 
         {/* Help Text */}
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             Don't worry! You can always change these preferences later in your settings
           </p>
         </div>

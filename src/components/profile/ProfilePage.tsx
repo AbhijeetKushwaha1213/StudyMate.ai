@@ -100,8 +100,8 @@ export const ProfilePage = () => {
   return (
     <div className="space-y-6 pb-20">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">My Profile</h1>
-        <p className="text-gray-600">Manage your account and study preferences</p>
+        <h1 className="text-2xl font-bold text-gradient mb-2">My Profile</h1>
+        <p className="text-muted-foreground">Manage your account and study preferences</p>
       </div>
 
       {/* Avatar Upload Section */}
@@ -129,9 +129,9 @@ export const ProfilePage = () => {
           <div className="flex-1">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">{user?.name}</h2>
-                <p className="text-gray-600">{user?.email}</p>
-                <Badge className="mt-2">
+                <h2 className="text-xl font-semibold text-foreground">{user?.name}</h2>
+                <p className="text-muted-foreground">{user?.email}</p>
+                <Badge className="mt-2 bg-brand-gradient text-white border-0">
                   {user?.userType === 'college' ? 'College Student' : 'Exam Preparation'}
                 </Badge>
               </div>
@@ -151,7 +151,7 @@ export const ProfilePage = () => {
         {isEditing && (
           <div className="space-y-4 border-t pt-6">
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
+              <label className="text-sm font-medium text-foreground mb-2 block">
                 Full Name
               </label>
               <Input
@@ -163,7 +163,7 @@ export const ProfilePage = () => {
 
             {user?.userType === 'college' && (
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   College/University
                 </label>
                 <Input
@@ -176,7 +176,7 @@ export const ProfilePage = () => {
 
             {user?.userType === 'exam' && (
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Exam Type
                 </label>
                 <Input
@@ -216,72 +216,72 @@ export const ProfilePage = () => {
 
       {/* Study Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4 text-center">
-          <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-            <BookOpen className="w-5 h-5 text-blue-600" />
+        <Card className="p-4 text-center card-interactive">
+          <div className="w-11 h-11 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-md">
+            <BookOpen className="w-5 h-5 text-white" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">{user?.study_streak || 0}</div>
-          <div className="text-sm text-gray-600">Day Streak</div>
+          <div className="text-2xl font-bold text-foreground">{user?.study_streak || 0}</div>
+          <div className="text-sm text-muted-foreground">Day Streak</div>
         </Card>
 
-        <Card className="p-4 text-center">
-          <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-            <Target className="w-5 h-5 text-green-600" />
+        <Card className="p-4 text-center card-interactive">
+          <div className="w-11 h-11 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-md">
+            <Target className="w-5 h-5 text-white" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">{Math.round(user?.total_study_hours || 0)}h</div>
-          <div className="text-sm text-gray-600">Study Hours</div>
+          <div className="text-2xl font-bold text-foreground">{Math.round(user?.total_study_hours || 0)}h</div>
+          <div className="text-sm text-muted-foreground">Study Hours</div>
         </Card>
 
-        <Card className="p-4 text-center">
-          <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-            <Trophy className="w-5 h-5 text-purple-600" />
+        <Card className="p-4 text-center card-interactive">
+          <div className="w-11 h-11 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-md">
+            <Trophy className="w-5 h-5 text-white" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">{user?.current_level || 1}</div>
-          <div className="text-sm text-gray-600">Level</div>
+          <div className="text-2xl font-bold text-foreground">{user?.current_level || 1}</div>
+          <div className="text-sm text-muted-foreground">Level</div>
         </Card>
 
-        <Card className="p-4 text-center">
-          <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-            <Calendar className="w-5 h-5 text-orange-600" />
+        <Card className="p-4 text-center card-interactive">
+          <div className="w-11 h-11 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-md">
+            <Calendar className="w-5 h-5 text-white" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">{user?.experience_points || 0}</div>
-          <div className="text-sm text-gray-600">XP Points</div>
+          <div className="text-2xl font-bold text-foreground">{user?.experience_points || 0}</div>
+          <div className="text-sm text-muted-foreground">XP Points</div>
         </Card>
       </div>
 
       {/* Account Information */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Information</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Account Information</h3>
         <div className="space-y-3">
           <div className="flex items-center space-x-3">
-            <User className="w-5 h-5 text-gray-400" />
-            <span className="text-gray-600">Name:</span>
-            <span className="font-medium">{user?.name}</span>
+            <User className="w-5 h-5 text-muted-foreground" />
+            <span className="text-muted-foreground">Name:</span>
+            <span className="font-medium text-foreground">{user?.name}</span>
           </div>
           <div className="flex items-center space-x-3">
-            <Mail className="w-5 h-5 text-gray-400" />
-            <span className="text-gray-600">Email:</span>
-            <span className="font-medium">{user?.email}</span>
+            <Mail className="w-5 h-5 text-muted-foreground" />
+            <span className="text-muted-foreground">Email:</span>
+            <span className="font-medium text-foreground">{user?.email}</span>
           </div>
           <div className="flex items-center space-x-3">
-            <Target className="w-5 h-5 text-gray-400" />
-            <span className="text-gray-600">Study Mode:</span>
+            <Target className="w-5 h-5 text-muted-foreground" />
+            <span className="text-muted-foreground">Study Mode:</span>
             <Badge variant="outline">
               {user?.userType === 'college' ? 'College Student' : 'Exam Preparation'}
             </Badge>
           </div>
           {user?.college && (
             <div className="flex items-center space-x-3">
-              <BookOpen className="w-5 h-5 text-gray-400" />
-              <span className="text-gray-600">College:</span>
-              <span className="font-medium">{user.college}</span>
+              <BookOpen className="w-5 h-5 text-muted-foreground" />
+              <span className="text-muted-foreground">College:</span>
+              <span className="font-medium text-foreground">{user.college}</span>
             </div>
           )}
           {user?.examType && (
             <div className="flex items-center space-x-3">
-              <Target className="w-5 h-5 text-gray-400" />
-              <span className="text-gray-600">Exam Type:</span>
-              <span className="font-medium">{user.examType}</span>
+              <Target className="w-5 h-5 text-muted-foreground" />
+              <span className="text-muted-foreground">Exam Type:</span>
+              <span className="font-medium text-foreground">{user.examType}</span>
             </div>
           )}
         </div>

@@ -22,6 +22,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (2024-06-25) — Premium Frontend Upgrade (Phase 2: Pages + Dark Mode)
+- **💬 AI Chat**: gradient bot avatar, brand-gradient user message bubbles, rounded bubbles, themed loading state, premium send button
+- **🏆 Achievements**: dark-mode-safe summary stat cards with gradient icons, gradient title, themed achievement cards with hover lift
+- **👤 Profile**: gradient title, interactive gradient stat cards, full theme-token colors (dark-mode safe), gradient role badge
+- **⚙️ Settings**: gradient title and theme-token text
+- **🚀 Onboarding**: brand-gradient progress bar, glass card, premium/success CTA buttons, dark-mode-safe text, fade-in entrance
+- **🔌 Integrations**: gradient title, interactive cards, themed data panels, premium connect buttons, brand-gradient benefits card
+- **🌙 Dark Mode Toggle**: added a one-click light/dark toggle in the app header (persists to localStorage)
+
 ### Added (2024-06-25) — Premium Frontend Upgrade (Phase 1: Foundation + Shell)
 - **🎨 Premium Design System Foundation**
   - New violet/indigo brand color tokens across light + dark mode (replaces monochrome theme)

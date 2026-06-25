@@ -172,21 +172,21 @@ export const IntegrationsPage = () => {
     switch (integration.id) {
       case 'github':
         return (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 p-4 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 p-4 bg-muted rounded-lg">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{integration.data.repos}</div>
-              <div className="text-sm text-gray-600">Repositories</div>
+              <div className="text-2xl font-bold text-foreground">{integration.data.repos}</div>
+              <div className="text-sm text-muted-foreground">Repositories</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{integration.data.commits}</div>
-              <div className="text-sm text-gray-600">Commits</div>
+              <div className="text-2xl font-bold text-foreground">{integration.data.commits}</div>
+              <div className="text-sm text-muted-foreground">Commits</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{integration.data.stars}</div>
-              <div className="text-sm text-gray-600">Stars</div>
+              <div className="text-2xl font-bold text-foreground">{integration.data.stars}</div>
+              <div className="text-sm text-muted-foreground">Stars</div>
             </div>
             <div className="text-center">
-              <div className="text-sm text-gray-600">Top Languages</div>
+              <div className="text-sm text-muted-foreground">Top Languages</div>
               <div className="text-xs mt-1">{integration.data.languages.join(', ')}</div>
             </div>
           </div>
@@ -194,23 +194,23 @@ export const IntegrationsPage = () => {
       
       case 'leetcode':
         return (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+          <div className="mt-4 p-4 bg-muted rounded-lg">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{integration.data.solved}</div>
-                <div className="text-sm text-gray-600">Problems Solved</div>
+                <div className="text-2xl font-bold text-foreground">{integration.data.solved}</div>
+                <div className="text-sm text-muted-foreground">Problems Solved</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">{integration.data.easy}</div>
-                <div className="text-sm text-gray-600">Easy</div>
+                <div className="text-sm text-muted-foreground">Easy</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-yellow-600">{integration.data.medium}</div>
-                <div className="text-sm text-gray-600">Medium</div>
+                <div className="text-sm text-muted-foreground">Medium</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">{integration.data.hard}</div>
-                <div className="text-sm text-gray-600">Hard</div>
+                <div className="text-sm text-muted-foreground">Hard</div>
               </div>
             </div>
             <div className="text-center">
@@ -221,17 +221,17 @@ export const IntegrationsPage = () => {
       
       case 'linkedin':
         return (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-4 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-4 bg-muted rounded-lg">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{integration.data.connections}</div>
-              <div className="text-sm text-gray-600">Connections</div>
+              <div className="text-2xl font-bold text-foreground">{integration.data.connections}</div>
+              <div className="text-sm text-muted-foreground">Connections</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{integration.data.courses}</div>
-              <div className="text-sm text-gray-600">Courses</div>
+              <div className="text-2xl font-bold text-foreground">{integration.data.courses}</div>
+              <div className="text-sm text-muted-foreground">Courses</div>
             </div>
             <div className="text-center">
-              <div className="text-sm text-gray-600">Top Skills</div>
+              <div className="text-sm text-muted-foreground">Top Skills</div>
               <div className="text-xs mt-1">{integration.data.skills.slice(0, 2).join(', ')}</div>
             </div>
           </div>
@@ -245,8 +245,8 @@ export const IntegrationsPage = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-3">Platform Integrations</h1>
-        <p className="text-lg text-gray-600">
+        <h1 className="text-3xl font-bold text-gradient mb-3">Platform Integrations</h1>
+        <p className="text-lg text-muted-foreground">
           Connect your accounts to sync progress and enhance your learning experience
         </p>
       </div>
@@ -256,21 +256,21 @@ export const IntegrationsPage = () => {
           const IconComponent = integration.icon;
           
           return (
-            <Card key={integration.id} className="p-6">
+            <Card key={integration.id} className="p-6 card-interactive">
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <IconComponent className="w-6 h-6 text-gray-700" />
+                  <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center">
+                    <IconComponent className="w-6 h-6 text-foreground" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-xl font-semibold text-gray-900">{integration.name}</h3>
+                      <h3 className="text-xl font-semibold text-foreground">{integration.name}</h3>
                       {getStatusIcon(integration.status)}
                       {getStatusBadge(integration.status)}
                     </div>
-                    <p className="text-gray-600">{integration.description}</p>
+                    <p className="text-muted-foreground">{integration.description}</p>
                     {integration.lastSync && (
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-muted-foreground mt-1">
                         Last synced: {new Date(integration.lastSync).toLocaleString()}
                       </p>
                     )}
@@ -299,9 +299,9 @@ export const IntegrationsPage = () => {
                     </>
                   ) : (
                     <Button
+                      variant="premium"
                       onClick={() => handleConnect(integration.id)}
                       disabled={isLoading === integration.id}
-                      className="bg-indigo-600 hover:bg-indigo-700"
                     >
                       {isLoading === integration.id ? (
                         <>
@@ -327,23 +327,23 @@ export const IntegrationsPage = () => {
 
       <Separator />
 
-      <Card className="p-6 bg-blue-50 border-blue-200">
-        <h3 className="text-lg font-semibold text-blue-900 mb-2">Integration Benefits</h3>
-        <ul className="space-y-2 text-blue-800">
+      <Card className="p-6 bg-brand-gradient-subtle border-primary/20">
+        <h3 className="text-lg font-semibold text-foreground mb-2">Integration Benefits</h3>
+        <ul className="space-y-2 text-muted-foreground">
           <li className="flex items-center">
-            <CheckCircle2 className="w-4 h-4 mr-2 text-blue-600" />
+            <CheckCircle2 className="w-4 h-4 mr-2 text-primary" />
             Automatic progress tracking across platforms
           </li>
           <li className="flex items-center">
-            <CheckCircle2 className="w-4 h-4 mr-2 text-blue-600" />
+            <CheckCircle2 className="w-4 h-4 mr-2 text-primary" />
             Personalized study recommendations based on your activity
           </li>
           <li className="flex items-center">
-            <CheckCircle2 className="w-4 h-4 mr-2 text-blue-600" />
+            <CheckCircle2 className="w-4 h-4 mr-2 text-primary" />
             Unified dashboard showing all your achievements
           </li>
           <li className="flex items-center">
-            <CheckCircle2 className="w-4 h-4 mr-2 text-blue-600" />
+            <CheckCircle2 className="w-4 h-4 mr-2 text-primary" />
             Portfolio enhancement with verified skills and projects
           </li>
         </ul>
