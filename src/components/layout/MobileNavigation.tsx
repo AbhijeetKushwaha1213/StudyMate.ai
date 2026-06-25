@@ -83,8 +83,8 @@ export const MobileNavigation = ({
               
               {user && (
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                    <span className="text-primary-foreground font-medium text-sm">
+                  <div className="w-10 h-10 bg-brand-gradient rounded-full flex items-center justify-center shadow-glow">
+                    <span className="text-white font-medium text-sm">
                       {user.name?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
                   </div>
@@ -117,17 +117,17 @@ export const MobileNavigation = ({
                       <button
                         key={item.id}
                         onClick={() => handleNavigation(item.id)}
-                        className={`w-full flex items-center justify-between px-3 py-3 text-left rounded-lg transition-colors ${
+                        className={`w-full flex items-center justify-between px-3 py-3 text-left rounded-lg transition-all duration-200 ${
                           isActive
-                            ? 'bg-accent text-accent-foreground border border-accent'
+                            ? 'bg-brand-gradient text-white shadow-glow'
                             : 'text-foreground hover:bg-accent/50'
                         }`}
                       >
                         <div className="flex items-center space-x-3">
-                          <Icon className={`w-5 h-5 ${isActive ? 'text-accent-foreground' : 'text-muted-foreground'}`} />
+                          <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-muted-foreground'}`} />
                           <span className="font-medium">{item.label}</span>
                         </div>
-                        {isActive && <ChevronRight className="w-4 h-4 text-accent-foreground" />}
+                        {isActive && <ChevronRight className="w-4 h-4 text-white" />}
                       </button>
                     );
                   })}
@@ -147,17 +147,17 @@ export const MobileNavigation = ({
                       <button
                         key={item.id}
                         onClick={() => handleNavigation(item.id)}
-                        className={`w-full flex items-center justify-between px-3 py-3 text-left rounded-lg transition-colors ${
+                        className={`w-full flex items-center justify-between px-3 py-3 text-left rounded-lg transition-all duration-200 ${
                           isActive
-                            ? 'bg-accent text-accent-foreground border border-accent'
+                            ? 'bg-brand-gradient text-white shadow-glow'
                             : 'text-foreground hover:bg-accent/50'
                         }`}
                       >
                         <div className="flex items-center space-x-3">
-                          <Icon className={`w-5 h-5 ${isActive ? 'text-accent-foreground' : 'text-muted-foreground'}`} />
+                          <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-muted-foreground'}`} />
                           <span className="font-medium">{item.label}</span>
                         </div>
-                        {isActive && <ChevronRight className="w-4 h-4 text-accent-foreground" />}
+                        {isActive && <ChevronRight className="w-4 h-4 text-white" />}
                       </button>
                     );
                   })}

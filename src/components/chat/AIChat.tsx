@@ -216,7 +216,9 @@ export const AIChat = ({
     <Card className={`flex flex-col ${chatHeight} ${className}`}>
       <div className="p-4 border-b flex items-center justify-between">
         <h3 className="font-semibold flex items-center">
-          <Bot className="w-5 h-5 mr-2 text-blue-600" />
+          <span className="w-8 h-8 bg-brand-gradient rounded-lg flex items-center justify-center mr-2 shadow-glow">
+            <Bot className="w-4 h-4 text-white" />
+          </span>
           AI {context.charAt(0).toUpperCase() + context.slice(1)}
         </h3>
         <div className="flex items-center space-x-2">
@@ -224,7 +226,7 @@ export const AIChat = ({
             variant="ghost"
             size="sm"
             onClick={() => setShowHistory(!showHistory)}
-            className="text-gray-600"
+            className="text-muted-foreground"
           >
             <History className="w-4 h-4" />
           </Button>
@@ -232,7 +234,7 @@ export const AIChat = ({
             variant="ghost"
             size="sm"
             onClick={handleSaveSession}
-            className="text-gray-600"
+            className="text-muted-foreground"
           >
             <Save className="w-4 h-4" />
           </Button>
@@ -241,7 +243,7 @@ export const AIChat = ({
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-gray-600"
+              className="text-muted-foreground"
             >
               {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </Button>
@@ -266,15 +268,15 @@ export const AIChat = ({
                   className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg p-3 ${
+                    className={`max-w-[80%] rounded-2xl p-3 ${
                       message.sender === 'user'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-900'
+                        ? 'bg-brand-gradient text-white shadow-glow'
+                        : 'bg-muted text-foreground'
                     }`}
                   >
                     <div className="flex items-start space-x-2">
                       {message.sender === 'ai' && (
-                        <Bot className="w-4 h-4 mt-0.5 text-blue-600" />
+                        <Bot className="w-4 h-4 mt-0.5 text-primary" />
                       )}
                       {message.sender === 'user' && (
                         <User className="w-4 h-4 mt-0.5 text-white" />
@@ -283,14 +285,14 @@ export const AIChat = ({
                         <p className="text-sm whitespace-pre-wrap">{message.text}</p>
                         <div className="flex items-center justify-between mt-1 space-x-4">
                           <p className={`text-xs ${
-                            message.sender === 'user' ? 'text-blue-200' : 'text-gray-500'
+                            message.sender === 'user' ? 'text-white/70' : 'text-muted-foreground'
                           }`}>
                             {message.timestamp.toLocaleTimeString()}
                           </p>
                           <button
                             onClick={() => handleCopy(message.text, message.id)}
                             className={`p-1 rounded hover:bg-black/10 transition-colors ${
-                              message.sender === 'user' ? 'text-blue-200 hover:text-white' : 'text-gray-400 hover:text-gray-600'
+                              message.sender === 'user' ? 'text-white/70 hover:text-white' : 'text-muted-foreground hover:text-foreground'
                             }`}
                             title="Copy message"
                           >
@@ -309,10 +311,10 @@ export const AIChat = ({
               
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-gray-100 text-gray-900 rounded-lg p-3 max-w-[80%]">
+                  <div className="bg-muted text-foreground rounded-2xl p-3 max-w-[80%]">
                     <div className="flex items-center space-x-2">
-                      <Bot className="w-4 h-4 text-blue-600" />
-                      <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                      <Bot className="w-4 h-4 text-primary" />
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
                       <span className="text-sm">Thinking...</span>
                     </div>
                   </div>
@@ -335,6 +337,7 @@ export const AIChat = ({
                 onClick={handleSendMessage} 
                 disabled={!input.trim() || isLoading}
                 size="sm"
+                variant="premium"
               >
                 <Send className="w-4 h-4" />
               </Button>

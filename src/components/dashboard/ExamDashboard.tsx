@@ -110,62 +110,63 @@ export const ExamDashboard = () => {
     <>
       <div className="space-y-6">
         {/* Welcome Header */}
-        <Card className="p-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-0">
-          <div className="flex items-center justify-between">
+        <Card className="relative overflow-hidden p-6 bg-brand-gradient text-white border-0 shadow-glow animate-fade-in-up">
+          <div className="absolute inset-0 bg-grid-pattern opacity-10" />
+          <div className="relative flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold mb-2">Good morning, {user?.name || 'Student'}! 🎯</h2>
-              <p className="text-indigo-100">Day {studyStreak} of your {user?.examType || 'exam'} preparation journey</p>
+              <p className="text-white/80">Day {studyStreak} of your {user?.examType || 'exam'} preparation journey</p>
             </div>
             <div className="text-right">
               <div className="text-3xl font-bold">{syllabusComplete}%</div>
-              <div className="text-indigo-200 text-sm">Syllabus Complete</div>
+              <div className="text-white/70 text-sm">Syllabus Complete</div>
             </div>
           </div>
         </Card>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-3 gap-4">
-          <Card className="p-4 text-center">
-            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-              <Flame className="w-5 h-5 text-orange-600" />
+          <Card className="p-4 text-center card-interactive">
+            <div className="w-11 h-11 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-md">
+              <Flame className="w-5 h-5 text-white" />
             </div>
-            <div className="text-2xl font-bold text-gray-900">{studyStreak}</div>
-            <div className="text-sm text-gray-600">Day Streak</div>
+            <div className="text-2xl font-bold text-foreground">{studyStreak}</div>
+            <div className="text-sm text-muted-foreground">Day Streak</div>
           </Card>
 
-          <Card className="p-4 text-center">
-            <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-              <Clock className="w-5 h-5 text-blue-600" />
+          <Card className="p-4 text-center card-interactive">
+            <div className="w-11 h-11 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-md">
+              <Clock className="w-5 h-5 text-white" />
             </div>
-            <div className="text-2xl font-bold text-gray-900">{todaysStudyTimeHours}h</div>
-            <div className="text-sm text-gray-600">Today</div>
+            <div className="text-2xl font-bold text-foreground">{todaysStudyTimeHours}h</div>
+            <div className="text-sm text-muted-foreground">Today</div>
           </Card>
 
-          <Card className="p-4 text-center">
-            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-              <Target className="w-5 h-5 text-green-600" />
+          <Card className="p-4 text-center card-interactive">
+            <div className="w-11 h-11 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-md">
+              <Target className="w-5 h-5 text-white" />
             </div>
-            <div className="text-2xl font-bold text-gray-900">{topicsLeft}</div>
-            <div className="text-sm text-gray-600">Topics Left</div>
+            <div className="text-2xl font-bold text-foreground">{topicsLeft}</div>
+            <div className="text-sm text-muted-foreground">Topics Left</div>
           </Card>
         </div>
 
         {/* Today's Plan */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-gray-900">Your Subjects</h3>
+            <h3 className="text-xl font-bold text-foreground">Your Subjects</h3>
             <AddSubjectDialog />
           </div>
 
           {subjectsLoading ? (
-            <div className="text-center py-8 text-gray-500">Loading subjects...</div>
+            <div className="text-center py-8 text-muted-foreground">Loading subjects...</div>
           ) : subjects.length === 0 ? (
             <div className="text-center py-8">
-              <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h4 className="text-lg font-medium text-gray-900 mb-2">No Subjects Added</h4>
-              <p className="text-gray-600 mb-4">Start by adding your first subject to track your progress</p>
+              <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h4 className="text-lg font-medium text-foreground mb-2">No Subjects Added</h4>
+              <p className="text-muted-foreground mb-4">Start by adding your first subject to track your progress</p>
               <AddSubjectDialog trigger={
-                <Button className="bg-indigo-600 hover:bg-indigo-700">
+                <Button variant="premium">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Your First Subject
                 </Button>
@@ -179,20 +180,20 @@ export const ExamDashboard = () => {
                 
                 return (
                   <div key={subject.id} className={`flex items-center p-3 rounded-lg border ${
-                    isCompleted ? 'bg-green-50 border-green-200' :
-                    progress > 50 ? 'bg-blue-50 border-blue-200' :
-                    'bg-gray-50 border-gray-200'
+                    isCompleted ? 'bg-success/10 border-success/20' :
+                    progress > 50 ? 'bg-primary/10 border-primary/20' :
+                    'bg-muted border-border'
                   }`}>
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
-                      isCompleted ? 'bg-green-500' :
-                      progress > 50 ? 'bg-blue-500' :
-                      'bg-gray-400'
+                      isCompleted ? 'bg-success' :
+                      progress > 50 ? 'bg-primary' :
+                      'bg-muted-foreground'
                     }`}>
                       <BookOpen className="w-4 h-4 text-white" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900">{subject.name}</h4>
-                      <p className="text-sm text-gray-600">{subject.completed_topics} / {subject.total_topics} topics</p>
+                      <h4 className="font-semibold text-foreground">{subject.name}</h4>
+                      <p className="text-sm text-muted-foreground">{subject.completed_topics} / {subject.total_topics} topics</p>
                     </div>
                     <Badge variant={isCompleted ? 'secondary' : progress > 50 ? 'default' : 'outline'}>
                       {Math.round(progress)}%
@@ -205,7 +206,7 @@ export const ExamDashboard = () => {
 
           <div className="grid grid-cols-2 gap-3 mt-4">
             <Button 
-              className="bg-indigo-600 hover:bg-indigo-700"
+              variant="premium"
               onClick={handleStartNextSession}
               disabled={subjects.length === 0}
             >
@@ -224,10 +225,10 @@ export const ExamDashboard = () => {
 
         {/* Progress Overview */}
         <Card className="p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Subject Progress</h3>
+          <h3 className="text-lg font-bold text-foreground mb-4">Subject Progress</h3>
           
           {subjects.length === 0 ? (
-            <div className="text-center py-4 text-gray-500">
+            <div className="text-center py-4 text-muted-foreground">
               No subjects to track yet
             </div>
           ) : (
@@ -237,8 +238,8 @@ export const ExamDashboard = () => {
                 return (
                   <div key={subject.id}>
                     <div className="flex justify-between text-sm mb-2">
-                      <span className="text-gray-600">{subject.name}</span>
-                      <span className="font-medium">{Math.round(progress)}%</span>
+                      <span className="text-muted-foreground">{subject.name}</span>
+                      <span className="font-medium text-foreground">{Math.round(progress)}%</span>
                     </div>
                     <Progress value={progress} className="h-2" />
                   </div>
@@ -251,7 +252,7 @@ export const ExamDashboard = () => {
         {/* Exam-Focused Tools Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Mock Tests</h3>
+            <h3 className="text-lg font-bold text-foreground mb-4">Mock Tests</h3>
             <div className="space-y-3">
               <Button 
                 variant="outline" 
@@ -273,11 +274,11 @@ export const ExamDashboard = () => {
           </Card>
 
           <Card className="p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Exam Tools</h3>
+            <h3 className="text-lg font-bold text-foreground mb-4">Exam Tools</h3>
             <div className="space-y-3">
               <Button 
                 variant="outline" 
-                className="w-full justify-start text-red-600 border-red-300 hover:bg-red-50"
+                className="w-full justify-start text-destructive border-destructive/30 hover:bg-destructive/10"
                 onClick={() => setShowDeleteTracker(true)}
               >
                 <BookOpen className="w-4 h-4 mr-2" />
@@ -296,18 +297,18 @@ export const ExamDashboard = () => {
         </div>
 
         {/* AI Recommendation */}
-        <Card className="p-6 bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
+        <Card className="p-6 bg-brand-gradient-subtle border-primary/20">
           <div className="flex items-start space-x-3">
-            <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-brand-gradient rounded-full flex items-center justify-center shadow-glow flex-shrink-0">
               <TrendingUp className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
-              <h4 className="font-bold text-gray-900 mb-2">{aiRec.title}</h4>
-              <p className="text-gray-700 mb-3">{aiRec.message}</p>
+              <h4 className="font-bold text-foreground mb-2">{aiRec.title}</h4>
+              <p className="text-muted-foreground mb-3">{aiRec.message}</p>
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="text-purple-700 border-purple-300"
+                className="text-primary border-primary/30 hover:bg-primary/10"
                 onClick={handleViewStudyPlan}
               >
                 {aiRec.action}

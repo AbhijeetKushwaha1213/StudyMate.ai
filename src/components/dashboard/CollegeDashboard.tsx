@@ -161,40 +161,41 @@ export const CollegeDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
-        <Card className="p-6 bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0">
-          <div className="flex items-center justify-between">
+        <Card className="relative overflow-hidden p-6 bg-brand-gradient text-white border-0 shadow-glow animate-fade-in-up">
+          <div className="absolute inset-0 bg-grid-pattern opacity-10" />
+          <div className="relative flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold mb-2">Hey there, {user?.name || 'Student'}! 🚀</h2>
-              <p className="text-purple-100">{user?.semester ? `Semester ${user.semester}` : 'College'} • {user?.branch || 'Computer Science'}</p>
+              <p className="text-white/80">{user?.semester ? `Semester ${user.semester}` : 'College'} • {user?.branch || 'Computer Science'}</p>
             </div>
             <div className="text-right">
               <div className="text-3xl font-bold">{userStats?.cgpa?.toFixed(1) || '0.0'}</div>
-              <div className="text-purple-200 text-sm">Current CGPA</div>
+              <div className="text-white/70 text-sm">Current CGPA</div>
             </div>
           </div>
         </Card>
 
       {/* Quick Overview */}
       <div className="grid grid-cols-3 gap-4">
-        <Card className="p-4 text-center">
-          <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-            <BookOpen className="w-5 h-5 text-blue-600" />
+        <Card className="p-4 text-center card-interactive">
+          <div className="w-11 h-11 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-md">
+            <BookOpen className="w-5 h-5 text-white" />
           </div>
           <div className="text-2xl font-bold text-foreground">{projects.length}</div>
           <div className="text-sm text-muted-foreground">Active Projects</div>
         </Card>
 
-        <Card className="p-4 text-center">
-          <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-            <Code className="w-5 h-5 text-green-600" />
+        <Card className="p-4 text-center card-interactive">
+          <div className="w-11 h-11 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-md">
+            <Code className="w-5 h-5 text-white" />
           </div>
           <div className="text-2xl font-bold text-foreground">{skills.length}</div>
           <div className="text-sm text-muted-foreground">Skills Learning</div>
         </Card>
 
-        <Card className="p-4 text-center">
-          <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-            <Briefcase className="w-5 h-5 text-purple-600" />
+        <Card className="p-4 text-center card-interactive">
+          <div className="w-11 h-11 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-md">
+            <Briefcase className="w-5 h-5 text-white" />
           </div>
           <div className="text-2xl font-bold text-foreground">₹{userStats?.monthly_earnings || 0}</div>
           <div className="text-sm text-muted-foreground">This Month</div>

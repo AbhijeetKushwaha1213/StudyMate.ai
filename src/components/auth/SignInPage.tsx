@@ -95,18 +95,18 @@ export const SignInPage = () => {
 
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md animate-fade-in-up">
         {/* Logo and Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Brain className="w-8 h-8 text-primary-foreground" />
+          <div className="w-16 h-16 bg-brand-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-glow">
+            <Brain className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">StudyMate AI</h1>
+          <h1 className="text-3xl font-bold text-gradient mb-2">StudyMate AI</h1>
           <p className="text-muted-foreground">Your intelligent study companion</p>
         </div>
 
-        <Card className="p-6 shadow-xl border border-border bg-card/80 backdrop-blur-sm">
+        <Card className="p-6 shadow-premium-lg border border-border glass-strong">
           <Tabs defaultValue="signin" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
@@ -151,6 +151,7 @@ export const SignInPage = () => {
                 </div>
                 <Button
                   type="submit"
+                  variant="premium"
                   className="w-full"
                   disabled={isLoading}
                 >
@@ -249,6 +250,7 @@ export const SignInPage = () => {
                 </div>
                 <Button
                   type="submit"
+                  variant="premium"
                   className="w-full"
                   disabled={isLoading}
                 >

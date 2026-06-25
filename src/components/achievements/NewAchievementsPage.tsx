@@ -268,11 +268,11 @@ export const NewAchievementsPage = () => {
     const progress = (achievement.current / achievement.target) * 100;
     
     return (
-      <Card className={`p-6 transition-all duration-200 hover:shadow-lg border-2 ${
+      <Card className={`p-6 transition-all duration-200 hover:shadow-premium-lg hover:-translate-y-1 border-2 ${
         achievement.unlocked 
-          ? 'border-green-200 bg-gradient-to-br from-green-50 to-emerald-50' 
+          ? 'border-success/30 bg-success/5' 
           : achievement.current > 0
-            ? 'border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50'
+            ? 'border-primary/30 bg-primary/5'
             : 'border-muted bg-muted/30'
       }`}>
         <div className="flex items-start justify-between mb-4">
@@ -342,28 +342,48 @@ export const NewAchievementsPage = () => {
 
         {/* Progress Summary */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{stats.unlockedCount}</div>
-              <div className="text-sm text-blue-700">Unlocked</div>
+          <Card className="p-4 card-interactive">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-md">
+                <Trophy className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-foreground">{stats.unlockedCount}</div>
+                <div className="text-sm text-muted-foreground">Unlocked</div>
+              </div>
             </div>
           </Card>
-          <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{stats.currentLevel}</div>
-              <div className="text-sm text-green-700">Level</div>
+          <Card className="p-4 card-interactive">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-md">
+                <Star className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-foreground">{stats.currentLevel}</div>
+                <div className="text-sm text-muted-foreground">Level</div>
+              </div>
             </div>
           </Card>
-          <Card className="p-4 bg-gradient-to-br from-orange-50 to-red-50">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">{stats.currentStreak}</div>
-              <div className="text-sm text-orange-700">Day Streak</div>
+          <Card className="p-4 card-interactive">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl flex items-center justify-center shadow-md">
+                <Flame className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-foreground">{stats.currentStreak}</div>
+                <div className="text-sm text-muted-foreground">Day Streak</div>
+              </div>
             </div>
           </Card>
-          <Card className="p-4 bg-gradient-to-br from-purple-50 to-pink-50">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{achievements.length - stats.unlockedCount}</div>
-              <div className="text-sm text-purple-700">To Unlock</div>
+          <Card className="p-4 card-interactive">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center shadow-md">
+                <Target className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-foreground">{achievements.length - stats.unlockedCount}</div>
+                <div className="text-sm text-muted-foreground">To Unlock</div>
+              </div>
             </div>
           </Card>
         </div>

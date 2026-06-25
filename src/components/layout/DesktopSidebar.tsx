@@ -52,20 +52,20 @@ export const DesktopSidebar = ({ activeTab, onTabChange, onSignOut, isCollapsed 
   ];
 
   return (
-    <div className="h-full flex flex-col bg-background border-r border-border sticky top-0">
+    <div className="h-full flex flex-col bg-sidebar border-r border-sidebar-border sticky top-0">
       {/* Header */}
-      <div className="flex items-center h-16 px-6 border-b border-border flex-shrink-0">
+      <div className="flex items-center h-16 px-6 border-b border-sidebar-border flex-shrink-0">
         {isCollapsed ? (
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mx-auto">
-            <span className="text-primary-foreground font-bold text-sm">S</span>
+          <div className="w-9 h-9 bg-brand-gradient rounded-xl flex items-center justify-center mx-auto shadow-glow">
+            <span className="text-white font-bold text-sm">S</span>
           </div>
         ) : (
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">S</span>
+            <div className="w-9 h-9 bg-brand-gradient rounded-xl flex items-center justify-center shadow-glow">
+              <span className="text-white font-bold text-sm">S</span>
             </div>
             <div>
-              <h1 className="font-bold text-foreground text-sm">StudyMate AI</h1>
+              <h1 className="font-bold text-foreground text-sm tracking-tight">StudyMate AI</h1>
               <p className="text-xs text-muted-foreground">
                 {user.userType === 'exam' ? 'Exam Prep' : 'College'}
               </p>
@@ -75,11 +75,11 @@ export const DesktopSidebar = ({ activeTab, onTabChange, onSignOut, isCollapsed 
       </div>
 
       {/* User Profile */}
-      <div className={`p-4 border-b border-border flex-shrink-0 ${isCollapsed ? 'px-2' : ''}`}>
+      <div className={`p-4 border-b border-sidebar-border flex-shrink-0 ${isCollapsed ? 'px-2' : ''}`}>
         {isCollapsed ? (
           <div className="flex justify-center">
-            <Avatar className="w-10 h-10">
-              <AvatarFallback className="text-sm font-medium bg-primary text-primary-foreground">
+            <Avatar className="w-10 h-10 ring-2 ring-primary/20">
+              <AvatarFallback className="text-sm font-medium bg-brand-gradient text-white">
                 {getInitials(user.name || 'U')}
               </AvatarFallback>
             </Avatar>
@@ -87,8 +87,8 @@ export const DesktopSidebar = ({ activeTab, onTabChange, onSignOut, isCollapsed 
         ) : (
           <>
             <div className="flex items-center space-x-3 mb-3">
-              <Avatar className="w-10 h-10">
-                <AvatarFallback className="text-sm font-medium bg-primary text-primary-foreground">
+              <Avatar className="w-10 h-10 ring-2 ring-primary/20">
+                <AvatarFallback className="text-sm font-medium bg-brand-gradient text-white">
                   {getInitials(user.name || 'U')}
                 </AvatarFallback>
               </Avatar>
@@ -100,7 +100,7 @@ export const DesktopSidebar = ({ activeTab, onTabChange, onSignOut, isCollapsed 
             
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center space-x-1">
-                <Badge variant="secondary" className="text-xs">
+                <Badge className="text-xs bg-brand-gradient-subtle text-primary border-0">
                   Level {user.current_level || 1}
                 </Badge>
                 <span className="text-muted-foreground">{user.experience_points || 0} XP</span>
@@ -126,25 +126,28 @@ export const DesktopSidebar = ({ activeTab, onTabChange, onSignOut, isCollapsed 
             const isActive = activeTab === item.id;
             
             return (
-              <Button
+              <button
                 key={item.id}
-                variant={isActive ? "secondary" : "ghost"}
-                className={`w-full h-9 transition-all duration-200 ${
-                  isActive ? 'bg-accent text-accent-foreground' : 'text-foreground hover:bg-accent/50'
-                } ${isCollapsed ? 'justify-center px-0' : 'justify-start px-3'}`}
                 onClick={() => onTabChange(item.id)}
                 title={isCollapsed ? item.label : undefined}
+                className={`group relative w-full h-10 flex items-center rounded-lg transition-all duration-200 ${
+                  isActive
+                    ? 'bg-brand-gradient text-white shadow-glow'
+                    : 'text-foreground hover:bg-sidebar-accent'
+                } ${isCollapsed ? 'justify-center px-0' : 'justify-start px-3'}`}
               >
-                <Icon className={`w-4 h-4 flex-shrink-0 ${isCollapsed ? '' : 'mr-3'}`} />
-                {!isCollapsed && <span className="text-sm truncate">{item.label}</span>}
-              </Button>
+                <Icon className={`w-4 h-4 flex-shrink-0 ${isCollapsed ? '' : 'mr-3'} ${
+                  isActive ? 'text-white' : 'text-muted-foreground group-hover:text-foreground'
+                }`} />
+                {!isCollapsed && <span className="text-sm truncate font-medium">{item.label}</span>}
+              </button>
             );
           })}
         </div>
 
-        <div className="pt-4 border-t border-border">
+        <div className="pt-4 border-t border-sidebar-border">
           {!isCollapsed && (
-            <p className="px-3 text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+            <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
               Tools
             </p>
           )}
@@ -154,18 +157,21 @@ export const DesktopSidebar = ({ activeTab, onTabChange, onSignOut, isCollapsed 
               const isActive = activeTab === item.id;
               
               return (
-                <Button
+                <button
                   key={item.id}
-                  variant={isActive ? "secondary" : "ghost"}
-                  className={`w-full h-9 transition-all duration-200 ${
-                    isActive ? 'bg-accent text-accent-foreground' : 'text-foreground hover:bg-accent/50'
-                  } ${isCollapsed ? 'justify-center px-0' : 'justify-start px-3'}`}
                   onClick={() => onTabChange(item.id)}
                   title={isCollapsed ? item.label : undefined}
+                  className={`group relative w-full h-10 flex items-center rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? 'bg-brand-gradient text-white shadow-glow'
+                      : 'text-foreground hover:bg-sidebar-accent'
+                  } ${isCollapsed ? 'justify-center px-0' : 'justify-start px-3'}`}
                 >
-                  <Icon className={`w-4 h-4 flex-shrink-0 ${isCollapsed ? '' : 'mr-3'}`} />
-                  {!isCollapsed && <span className="text-sm truncate">{item.label}</span>}
-                </Button>
+                  <Icon className={`w-4 h-4 flex-shrink-0 ${isCollapsed ? '' : 'mr-3'} ${
+                    isActive ? 'text-white' : 'text-muted-foreground group-hover:text-foreground'
+                  }`} />
+                  {!isCollapsed && <span className="text-sm truncate font-medium">{item.label}</span>}
+                </button>
               );
             })}
           </div>
@@ -173,10 +179,10 @@ export const DesktopSidebar = ({ activeTab, onTabChange, onSignOut, isCollapsed 
       </nav>
 
       {/* Footer */}
-      <div className={`p-4 border-t border-border flex-shrink-0 ${isCollapsed ? 'px-2' : ''}`}>
+      <div className={`p-4 border-t border-sidebar-border flex-shrink-0 ${isCollapsed ? 'px-2' : ''}`}>
         <Button
           variant="ghost"
-          className={`w-full h-9 text-foreground hover:bg-accent/50 transition-all duration-200 ${
+          className={`w-full h-9 text-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200 ${
             isCollapsed ? 'justify-center px-0' : 'justify-start px-3'
           }`}
           onClick={onSignOut}
